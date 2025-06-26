@@ -1,0 +1,52 @@
+# my_fullstack_app/docker-compose.yml
+
+version: '3.8' # Docker Compose 파일 형식 버전
+
+services:
+  db: # PostgreSQL 데이터베이스 서비스
+    image: postgres:13 # PostgreSQL 이미지 버전 (원하는 버전 선택)
+    volumes:
+      - pgdata:/var/lib/postgresql/data # 데이터를 영구적으로 저장할 볼륨 설정
+    environment: # 환경 변수 설정 (Django settings.py와 일치해야 함)
+      - POSTGRES_DB=${POSTGRES_DB:-mydjangodb}     # 데이터베이스 이름 (기본값 설정)
+      - POSTGRES_USER=${POSTGRES_USER:-myuser}     # 데이터베이스 사용자
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mypassword} # 데이터베이스 비밀번호
+    ports:
+      - "5432:5432" # 로컬 5432 포트와 컨테이너 5432 포트 연결 (선택 사항, 필요 없으면 제거)
+    healthcheck: # DB 준비 상태 확인 (Django가 DB에 연결하기 전까지 기다리게 함)
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend: # Django 백엔드 서비스
+    build: ./backend # backend 폴더의 Dockerfile을 사용하여 이미지 빌드
+    command: python manage.py runserver 0.0.0.0:8000 # Django 개발 서버 실행 명령어
+    volumes:
+      - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app에 마운트 (코드 변경 시 즉시 반영)
+    ports:
+      - "8000:8000" # 로컬 8000 포트와 컨테이너 8000 포트 연결
+    environment: # Django settings.py에 사용될 환경 변수
+      - POSTGRES_DB=${POSTGRES_DB:-mydjangodb}
+      - POSTGRES_USER=${POSTGRES_USER:-myuser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mypassword}
+      - POSTGRES_HOST=db # DB 서비스 이름으로 호스트 지정 (Docker Compose 네트워크 내부에서)
+      - POSTGRES_PORT=5432
+    depends_on: # db 서비스가 완전히 시작된 후에 backend 서비스 시작
+      db:
+        condition: service_healthy # DB 서비스가 healthcheck를 통과해야 시작
+
+  frontend: # React 프론트엔드 서비스
+    build: ./frontend # frontend 폴더의 Dockerfile을 사용하여 이미지 빌드
+    command: npm start # React 개발 서버 실행 명령어
+    volumes:
+      - ./frontend:/app # 로컬 frontend 폴더를 컨테이너 /app에 마운트
+      - /app/node_modules # node_modules는 호스트가 아닌 컨테이너 내부에 유지
+    ports:
+      - "3000:3000" # 로컬 3000 포트와 컨테이너 3000 포트 연결
+    depends_on: # backend 서비스가 시작된 후에 frontend 서비스 시작 (선택 사항, API 호출 필요 시)
+      - backend
+
+# 볼륨 정의 (데이터 영속성 유지를 위해)
+volumes:
+  pgdata: # PostgreSQL 데이터 저장용 볼륨
