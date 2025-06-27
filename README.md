@@ -16,3 +16,15 @@
 ### 김도윤
 - 영남대학교 전자공학과
 - Backend 개발 담당
+
+## Stack
+### Frontend
+- React
+
+### Backend
+- Django
+- PostgreSQL
+
+### AI
+- Fast API
+
