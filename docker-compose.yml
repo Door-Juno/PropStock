@@ -8,11 +8,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data # 데이터를 영구적으로 저장할 볼륨 설정
     environment: # 환경 변수 설정 (Django settings.py와 일치해야 함)
-      - POSTGRES_DB=${POSTGRES_DB:-mydjangodb}     # 데이터베이스 이름 (기본값 설정)
-      - POSTGRES_USER=${POSTGRES_USER:-myuser}     # 데이터베이스 사용자
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mypassword} # 데이터베이스 비밀번호
+      - POSTGRES_DB=${POSTGRES_DB}     # .env 파일에서 로드
+      - POSTGRES_USER=${POSTGRES_USER}     # .env 파일에서 로드
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} # .env 파일에서 로드
     ports:
-      - "5432:5432" # 로컬 5432 포트와 컨테이너 5432 포트 연결 (선택 사항, 필요 없으면 제거)
+      - "${DB_PORT:-5432}:5432" # 로컬 5432 포트와 컨테이너 5432 포트 연결 (기본값 5432)
     healthcheck: # DB 준비 상태 확인 (Django가 DB에 연결하기 전까지 기다리게 함)
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -25,16 +25,19 @@ services:
     volumes:
       - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app에 마운트 (코드 변경 시 즉시 반영)
     ports:
-      - "8000:8000" # 로컬 8000 포트와 컨테이너 8000 포트 연결
+      - "${DJANGO_PORT:-8000}:8000" # 로컬 8000 포트와 컨테이너 8000 포트 연결 (기본값 8000)
     environment: # Django settings.py에 사용될 환경 변수
-      - POSTGRES_DB=${POSTGRES_DB:-mydjangodb}
-      - POSTGRES_USER=${POSTGRES_USER:-myuser}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mypassword}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST=db # DB 서비스 이름으로 호스트 지정 (Docker Compose 네트워크 내부에서)
       - POSTGRES_PORT=5432
-    depends_on: # db 서비스가 완전히 시작된 후에 backend 서비스 시작
+      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai_service:8001/predict_inventory/} # AI 서비스 URL (기본값 설정)
+    depends_on: # db 서비스와 ai_service가 완전히 시작된 후에 backend 서비스 시작
       db:
         condition: service_healthy # DB 서비스가 healthcheck를 통과해야 시작
+      ai_service:
+        condition: service_started # AI 서비스 컨테이너가 시작되면 됨
 
   frontend: # React 프론트엔드 서비스
     build: ./frontend # frontend 폴더의 Dockerfile을 사용하여 이미지 빌드
@@ -43,9 +46,24 @@ services:
       - ./frontend:/app # 로컬 frontend 폴더를 컨테이너 /app에 마운트
       - /app/node_modules # node_modules는 호스트가 아닌 컨테이너 내부에 유지
     ports:
-      - "3000:3000" # 로컬 3000 포트와 컨테이너 3000 포트 연결
-    depends_on: # backend 서비스가 시작된 후에 frontend 서비스 시작 (선택 사항, API 호출 필요 시)
+      - "${REACT_PORT:-3000}:3000" # 로컬 3000 포트와 컨테이너 3000 포트 연결 (기본값 3000)
+    depends_on:
       - backend
+
+  ai_service: # AI FastAPI 서비스
+    build:
+      context: ./ai # AI 서비스 Dockerfile이 있는 경로
+      dockerfile: Dockerfile # AI 서비스 Dockerfile 이름
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1 # FastAPI 실행 명령어
+    volumes:
+      - ./ai/app:/app # 로컬 ai/app 폴더를 컨테이너 /app에 마운트
+      - ./ai/app/models:/app/models # 학습된 모델 파일을 마운트
+    ports:
+      - "${AI_PORT:-8001}:8001" # 로컬 8001 포트와 컨테이너 8001 포트 연결 (기본값 8001)
+    environment: # AI 서비스에 필요한 환경 변수
+      - MODEL_PATH=${MODEL_PATH:-/app/models/inventory_model.pkl} # FastAPI main.py에서 사용할 모델 경로 (기본값 설정)
+    depends_on:
+      - db # AI 서비스가 DB에서 데이터를 직접 가져올 경우 DB에 의존
 
 # 볼륨 정의 (데이터 영속성 유지를 위해)
 volumes:

@@ -13,8 +13,9 @@ WORKDIR /app
 # 시스템 종속성 설치 (PostgreSQL 클라이언트 라이브러리 등)
 # psycopg2-binary가 설치 과정에서 필요로 할 수 있습니다.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && apt-get install -y --no-install-recommends gcc libpq-dev postgresql-client \
     && rm -rf /var/lib/apt/lists/*
+
 
 # 요구사항 파일 복사 (캐싱 활용을 위해 먼저 복사)
 COPY requirements.txt /app/
