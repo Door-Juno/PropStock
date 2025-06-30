@@ -6,7 +6,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import './App.css'; // 전체 레이아웃 스타일을 위한 CSS 파일 (아래에서 생성)
 
 // 각 페이지 컴포넌트
-import Login from './pages/Login/Login';
+import Login from './pages/auth/Login';
 
 // 더미 페이지 컴포넌트
 const Signup = () => <div className="page-content"><h2>회원가입 페이지</h2><p>여기에 회원가입 내용이 들어갑니다..</p></div>;
