@@ -1,12 +1,12 @@
 # ----------------------------------------
 # 1. 운영체제 및 IDE 관련 파일 (OS & IDE specific files)
 # ----------------------------------------
-.DS_Store                # macOS 고유의 폴더 설정 파일
-Thumbs.db                # Windows 썸네일 캐시 파일
-.vscode/                 # VS Code 설정 폴더 (개인 설정, 작업 공간 설정 등)
-.idea/                   # IntelliJ/PyCharm 등 JetBrains IDE 설정 폴더
-*.sublime-workspace      # Sublime Text 워크스페이스 파일
-*.swp                    # Vim 스왑 파일
+.DS_Store                
+Thumbs.db                
+.vscode/                
+.idea/                  
+*.sublime-workspace      
+*.swp                    
 
 # ----------------------------------------
 # 2. 공통 Python 및 Django 관련 파일 (Common Python & Django files)
@@ -28,8 +28,8 @@ db.sqlite3
 # Django가 정적 파일을 수집하는 폴더 (collectstatic 명령어 사용 시)
 # 배포 시 Nginx 등으로 별도 서빙하며, 버전 관리할 필요 없음
 staticfiles/
-static_cdn/ # 사용자 업로드 파일 저장용 (MEDIA_ROOT)
-media/      # MEDIA_ROOT 폴더 (사용자 업로드 파일)
+static_cdn/ 
+media/      
 
 # 로컬 개발 환경 설정 파일 (민감 정보 포함 가능성)
 # settings.py가 여러 파일로 분리될 때 사용될 수 있습니다.
@@ -37,14 +37,14 @@ local_settings.py
 
 # 파이썬 로그 파일
 *.log
-*.sqlite3-journal # SQLite 저널 파일
+*.sqlite3-journal 
 
 # ----------------------------------------
 # 3. Node.js (React) 관련 파일 (Node.js/React files)
 # ----------------------------------------
-node_modules/            # Node.js 패키지 종속성 폴더
-build/                   # React 프로젝트 빌드 결과물 폴더 (npm run build)
-.env                     # 환경 변수 파일 (API 키, 비밀 정보 등 포함)
+node_modules/            
+build/                   
+.env                     
 .env.local
 .env.development.local
 .env.test.local
@@ -60,5 +60,5 @@ yarn-error.log* # yarn 에러 로그
 # PostgreSQL 데이터베이스의 실제 데이터가 저장되는 곳입니다.
 # docker-compose.yml 파일에 정의된 volumes 이름과 일치시켜야 합니다.
 # 예시: pgdata: 일 경우
-pgdata/                  # PostgreSQL 데이터가 저장될 로컬 볼륨 폴더
-mysql_data/              # MySQL을 사용할 경우
+pgdata/                 
+mysql_data/              
