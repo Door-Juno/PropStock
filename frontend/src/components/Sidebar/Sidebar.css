@@ -1,0 +1,36 @@
+/* frontend/src/components/Sidebar.css */
+.app-sidebar {
+  background-color: #333;
+  color: white;
+  width: 200px; /* 사이드바 너비 */
+  height: calc(100vh - 60px); /* 헤더 높이만큼 제외 */
+  position: fixed; /* 왼쪽 고정 */
+  top: 60px; /* 헤더 아래에 위치 */
+  left: 0;
+  padding-top: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 999; /* 헤더 바로 아래 */
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  margin-bottom: 10px;
+}
+
+.sidebar-menu a {
+  display: block;
+  padding: 10px 20px;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active { /* 현재 활성화된 링크 스타일 */
+  background-color: #555;
+}
