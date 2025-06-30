@@ -7,7 +7,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # package.json 및 package-lock.json 복사 (캐싱 활용을 위해 먼저 복사)
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # Node.js 종속성 설치
 RUN npm install
