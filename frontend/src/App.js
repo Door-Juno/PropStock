@@ -7,10 +7,10 @@ import './App.css'; // 전체 레이아웃 스타일을 위한 CSS 파일 (아�
 
 // 각 페이지 컴포넌트
 import Login from './pages/auth/Login';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 // 더미 페이지 컴포넌트
 const Signup = () => <div className="page-content"><h2>회원가입 페이지</h2><p>여기에 회원가입 내용이 들어갑니다..</p></div>;
-const Dashboard = () => <div className="page-content"><h2>대시보드 페이지</h2><p>여기에 대시보드 내용이 들어갑니다.</p></div>;
 const DataManagement = () => <div className="page-content"><h2>데이터 관리 페이지</h2><p>여기에 데이터 관리 내용이 들어갑니다.</p></div>;
 const Inventory = () => <div className="page-content"><h2>재고 관리 페이지</h2><p>여기에 재고 관리 내용이 들어갑니다.</p></div>;
 const Orders = () => <div className="page-content"><h2>발주 관리 페이지</h2><p>여기에 발주 관리 내용이 들어갑니다.</p></div>;
