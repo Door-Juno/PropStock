@@ -11,13 +11,13 @@ WORKDIR /app
 
 # 파이썬 의존성 파일 복사
 # 먼저 requirements.txt를 복사하여 캐싱을 활용 (dependencies 변경 시에만 다시 설치)
-COPY requirements.txt .
+COPY requirements.txt ./
 
 # 파이썬 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
-COPY ./app .
+COPY . .
 
 # FastAPI 애플리케이션 실행 명령어
 # 8001 포트에서 Uvicorn으로 main.py의 app 객체를 실행
