@@ -23,9 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv_path = BASE_DIR / '.env'  # 또는 BASE_DIR / 'backend' / '.env' (파일 위치에 따라 조정)
 load_dotenv(dotenv_path)
 
-# 테스트용 로그
-print("✅ POSTGRES_PASSWORD =", os.environ.get('POSTGRES_PASSWORD'))
-
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

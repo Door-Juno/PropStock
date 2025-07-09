@@ -1,21 +1,12 @@
 # ----------------------------------------
 # 1. 운영체제 및 IDE 관련 파일 (OS & IDE specific files)
 # ----------------------------------------
-<<<<<<< HEAD
 .DS_Store                
 Thumbs.db                
 .vscode/                
 .idea/                  
 *.sublime-workspace      
 *.swp                    
-=======
-.DS_Store            
-Thumbs.db        
-.vscode/               
-.idea/                 
-*.sublime-workspace     
-*.swp                  
->>>>>>> 2d6db680e87173acd98a62b95271dd5c97159a3d
 
 # ----------------------------------------
 # 2. 공통 Python 및 Django 관련 파일 (Common Python & Django files)
@@ -37,13 +28,8 @@ db.sqlite3
 # Django가 정적 파일을 수집하는 폴더 (collectstatic 명령어 사용 시)
 # 배포 시 Nginx 등으로 별도 서빙하며, 버전 관리할 필요 없음
 staticfiles/
-<<<<<<< HEAD
 static_cdn/ 
 media/      
-=======
-static_cdn/
-media/   
->>>>>>> 2d6db680e87173acd98a62b95271dd5c97159a3d
 
 # 로컬 개발 환경 설정 파일 (민감 정보 포함 가능성)
 # settings.py가 여러 파일로 분리될 때 사용될 수 있습니다.
@@ -52,7 +38,6 @@ local_settings.py
 # 파이썬 로그 파일
 *.log
 *.sqlite3-journal 
-<<<<<<< HEAD
 
 # ----------------------------------------
 # 3. Node.js (React) 관련 파일 (Node.js/React files)
@@ -60,14 +45,6 @@ local_settings.py
 node_modules/            
 build/                   
 .env                     
-=======
-# ----------------------------------------
-# 3. Node.js (React) 관련 파일 (Node.js/React files)
-# ----------------------------------------
-node_modules/          
-build/                
-.env                
->>>>>>> 2d6db680e87173acd98a62b95271dd5c97159a3d
 .env.local
 .env.development.local
 .env.test.local
@@ -85,7 +62,6 @@ yarn-error.log*
 # 예시: pgdata: 일 경우
 pgdata/                 
 <<<<<<< HEAD
-mysql_data/              
+mysql_data/               # MySQL을 사용할 경우
 =======
-mysql_data/              # MySQL을 사용할 경우
->>>>>>> 2d6db680e87173acd98a62b95271dd5c97159a3d
+
