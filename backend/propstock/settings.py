@@ -12,6 +12,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# BASE_DIR 정의 바로 아래쯤
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ✅ .env 파일 경로 불러오기
+dotenv_path = BASE_DIR / '.env'  # 또는 BASE_DIR / 'backend' / '.env' (파일 위치에 따라 조정)
+load_dotenv(dotenv_path)
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -37,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'products',
 ]
 
 MIDDLEWARE = [
