@@ -1,0 +1,115 @@
+/* src/pages/DataManagement/DataManagementPage.css */
+
+.data-management-page-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.data-management-page-title {
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+}
+
+.data-management-page-description {
+    color: #6c757d;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.data-management-content-wrapper {
+    display: flex;
+    gap: 30px;
+}
+
+.data-management-sidebar {
+    flex: 0 0 220px; /* 고정 너비 사이드바 */
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.data-management-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.data-management-sidebar li {
+    margin-bottom: 5px;
+}
+
+.data-management-sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.data-management-sidebar a:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.data-management-sidebar a.active-link {
+    background-color: #e6f7ff;
+    color: #007bff;
+    border-left-color: #007bff;
+    font-weight: bold;
+}
+
+.data-management-main-area {
+    flex-grow: 1;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .data-management-content-wrapper {
+        flex-direction: column;
+    }
+
+    .data-management-sidebar {
+        flex: none;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .data-management-sidebar ul {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: space-around;
+        border-bottom: 1px solid #eee;
+    }
+
+    .data-management-sidebar li {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .data-management-sidebar a {
+        padding: 10px 15px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        text-align: center;
+    }
+
+    .data-management-sidebar a.active-link {
+        border-left-color: transparent;
+        border-bottom-color: #007bff;
+    }
+}
