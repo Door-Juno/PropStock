@@ -1,0 +1,49 @@
+/* components/CriticalStockAlertList.css */
+.critical-stock-alert-list {
+    background-color: #fff3cd; /* 경고 색상 */
+    border-left: 5px solid #ffc107;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.critical-stock-alert-list h2 {
+    color: #6a4f00;
+    margin-bottom: 15px;
+}
+
+.critical-stock-alert-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.critical-stock-alert-list li {
+    background-color: #fff;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.critical-stock-alert-list li.low-stock {
+    border-left: 4px solid #dc3545; /* 빨간색 경고 */
+}
+
+.critical-stock-alert-list li.expired-soon {
+    border-left: 4px solid #fd7e14; /* 주황색 경고 */
+}
+
+.critical-stock-alert-list p {
+    color: #6c757d;
+}
+
+.critical-stock-alert-list.error {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 10px;
+    text-align: center;
+    background-color: #f8d7da;
+}

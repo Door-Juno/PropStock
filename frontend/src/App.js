@@ -6,12 +6,19 @@ import Sidebar from './components/Sidebar/Sidebar';
 import './App.css'; // 전체 레이아웃 스타일을 위한 CSS 파일 (아래에서 생성)
 
 // 각 페이지 컴포넌트
-import Login from './pages/Login/Login';
+import Login from './pages/auth/Login';
+import Dashboard from './pages/Dashboard/Dashboard';
+import SettingsPage from './pages/Settings/SettingsPage';
+import AccountSettings from './pages/Settings/AccountSettings'; // 자식 라우트를 직접 연결하는 경우
+import StoreSettings from './pages/Settings/StoreSettings';
+import NotificationSettings from './pages/Settings/NotificationSettings';
+import DataManagementPage from './pages/DataManagement/DataManagementPage';
+import DailySalesInput from './pages/DataManagement/DailySalesInput';
+import SalesDataUpload from './pages/DataManagement/SalesDataUpload';
+import SalesHistory from './pages/DataManagement/SalesHistory';
+import Signup from './pages/auth/Signup'
 
 // 더미 페이지 컴포넌트
-const Signup = () => <div className="page-content"><h2>회원가입 페이지</h2><p>여기에 회원가입 내용이 들어갑니다..</p></div>;
-const Dashboard = () => <div className="page-content"><h2>대시보드 페이지</h2><p>여기에 대시보드 내용이 들어갑니다.</p></div>;
-const DataManagement = () => <div className="page-content"><h2>데이터 관리 페이지</h2><p>여기에 데이터 관리 내용이 들어갑니다.</p></div>;
 const Inventory = () => <div className="page-content"><h2>재고 관리 페이지</h2><p>여기에 재고 관리 내용이 들어갑니다.</p></div>;
 const Orders = () => <div className="page-content"><h2>발주 관리 페이지</h2><p>여기에 발주 관리 내용이 들어갑니다.</p></div>;
 const Prediction = () => <div className="page-content"><h2>수요 예측 페이지</h2><p>여기에 수요 예측 내용이 들어갑니다.</p></div>;
@@ -33,12 +40,23 @@ function AppLayout() {
             <Route path="/login" element={<Login/>}/>
             <Route path="/signup" element={<Signup/>} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/data-management" element={<DataManagement />} />
+            <Route path="/data-management" element={<DataManagementPage />} >
+              <Route index element={<Navigate to="daily-sales" replace />} />
+              <Route path="daily-sales" element={<DailySalesInput />} />
+              <Route path="upload" element={<SalesDataUpload />} />
+              <Route path="history" element={<SalesHistory />} />
+            </Route>
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/prediction" element={<Prediction />} />
             <Route path="/reports" element={<Reports />} />
-            <Route path="*" element={<NotFound />} /> {/* 일치하는 경로가 없을 때 */}
+
+            <Route path="/settings" element={<SettingsPage />}>
+              <Route index element = {<Navigate to = "account" replace/>}/>
+                <Route path="account" element={<AccountSettings />} />
+                <Route path="store-info" element={<StoreSettings />} />
+                <Route path="notifications" element={<NotificationSettings />} />
+              </Route>
           </Routes>
         </main>
       </div>
