@@ -6,6 +6,7 @@ from .serializer import ProductSerializer
 from django.shortcuts import get_object_or_404
 
 class ProductListCreateAPIView(APIView):
+    serializer_class = ProductSerializer
     def get(self, request): #품목 목록 확인
         search = request.query_params.get('search', '')
         products = Product.objects.filter(name__icontains=search)
@@ -20,6 +21,7 @@ class ProductListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProductDetailAPIView(APIView):
+    serializer_class = ProductSerializer
     def get_object(self, pk): #DB에서 pk 기준으로 product 객체 가져옴
         return get_object_or_404(Product, pk=pk) #해당 id 없을 시 error
 
