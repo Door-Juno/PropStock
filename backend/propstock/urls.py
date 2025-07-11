@@ -24,7 +24,8 @@ urlpatterns = [
     path('api/', include('products.urls')), #products 앱 URL을 프로젝트에 연결
 
     path('api/schema/',SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'),name='swagger-ui')
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'),name='swagger-ui'),
+    path('sales/', include('sales.urls')),
 
 ]
 
