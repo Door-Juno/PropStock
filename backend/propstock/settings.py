@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_spectacular',
     'products',
 ]
 
@@ -139,3 +141,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Propstock API 문서', # API 문서의 제목
+    'DESCRIPTION': 'Propstock API 문서입니다.', # API 문서 설명
+    'VERSION': '1.0.0', # API 버전
+    'SERVE_INCLUDE_SCHEMA': False, # schema.json 파일을 제공할지 여부
+    # 기타 필요한 설정들
+}
