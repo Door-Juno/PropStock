@@ -1,0 +1,28 @@
+/* components/RecentSalesTrendChart.css */
+.recent-sales-trend-chart {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.recent-sales-trend-chart h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    height: 300px; /* 차트 높이 조절 */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.recent-sales-trend-chart.error {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 10px;
+    text-align: center;
+}

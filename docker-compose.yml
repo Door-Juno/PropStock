@@ -53,8 +53,9 @@ services:
       dockerfile: Dockerfile # AI 서비스 Dockerfile 이름
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1 # FastAPI 실행 명령어
     volumes:
-      - ./ai/app:/app # 로컬 ai/app 폴더를 컨테이너 /app에 마운트
-      - ./ai/app/models:/app/models # 학습된 모델 파일을 마운트
+      - ./ai:/app
+      - /app/models
+      - /app/data
     ports:
       - "${AI_PORT:-8001}:8001" # 로컬 8001 포트와 컨테이너 8001 포트 연결 (기본값 8001)
     environment: # AI 서비스에 필요한 환경 변수
