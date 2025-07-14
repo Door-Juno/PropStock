@@ -23,9 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv_path = BASE_DIR / '.env'  # 또는 BASE_DIR / 'backend' / '.env' (파일 위치에 따라 조정)
 load_dotenv(dotenv_path)
 
-# 테스트용 로그
-print("✅ POSTGRES_PASSWORD =", os.environ.get('POSTGRES_PASSWORD'))
-
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -53,6 +50,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_spectacular',
+    'products',
+    'sales',
+    
 ]
 
 MIDDLEWARE = [
@@ -141,3 +143,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Propstock API 문서', # API 문서의 제목
+    'DESCRIPTION': 'Propstock API 문서입니다.', # API 문서 설명
+    'VERSION': '1.0.0', # API 버전
+    'SERVE_INCLUDE_SCHEMA': False, # schema.json 파일을 제공할지 여부
+    # 기타 필요한 설정들
+}
