@@ -1,0 +1,26 @@
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table th, .inventory-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.inventory-table th {
+  background-color: #f2f2f2;
+}
+
+.inventory-table .status-low td {
+  background-color: #f8d7da; /* 빨간색 계열 */
+}
+
+.inventory-table .status-high td {
+  background-color: #fff3cd; /* 노란색 계열 */
+}
+
+.inventory-table .status-normal td {
+  background-color: #d4edda; /* 녹색 계열 */
+}

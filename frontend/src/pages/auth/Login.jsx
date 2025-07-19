@@ -70,7 +70,7 @@ function Login () {
                     <button type='submit' className='login-button'>로그인</button>
                 </form>
                 <p className='signup-link-container'>
-                    <Link to='signup' className="signup-link">회원가입</Link>
+                    <Link to='/signup' className="signup-link">회원가입</Link>
                 </p>
             </div>
         </div>

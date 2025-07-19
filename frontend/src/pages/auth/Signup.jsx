@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { useNavigate, link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from 'axios';
 import './Signup.css'
 
@@ -26,10 +26,11 @@ function Signup() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/signup', {
+            const response = await axios.post('http://localhost:8000/api/auth/register/', { // signup -> register API 명세에 맞게 수정
+                email: useremail, // useremail -> email API 명세에 맞게 수정
                 username,
-                useremail,
                 password,
+                password_confirm: passwordConfirm, // passwordConfirm 추가
             });
 
             setSuccess('회원가입이 완료되었습니다!')
@@ -43,13 +44,72 @@ function Signup() {
             console.error('회원가입 실패: ', err);
             if (err.response && err.response.data){
                 const errorData = err.response.data ;
-                if(errorData.username) setError('아이디: ${errorData.username[0]}');
-                else if (errorData.useremail) setError('이메일: ${errorData.useremail[0]}');
-
+                // API 응답 형식에 따라 에러 메시지 처리 로직 수정
+                if (errorData.email) setError(`이메일: ${errorData.email[0]}`);
+                else if (errorData.username) setError(`아이디: ${errorData.username[0]}`);
+                else if (errorData.password) setError(`비밀번호: ${errorData.password[0]}`);
+                else if (errorData.password_confirm) setError(`비밀번호 확인: ${errorData.password_confirm[0]}`);
+                else setError(errorData.detail || '회원가입 중 오류가 발생했습니다.');
             }
         }
 
     }
-}
+
+    return (
+        <div className='signup-container'>
+            <div className='signup-box'>
+                <h2>회원가입</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className='form-group'>
+                        <label htmlFor='username'>아이디</label>
+                        <input
+                            type='text'
+                            id='username'
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='useremail'>이메일</label>
+                        <input
+                            type='email'
+                            id='useremail'
+                            value={useremail}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='password'>비밀번호</label>
+                        <input
+                            type='password'
+                            id='password'
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='passwordConfirm'>비밀번호 확인</label>
+                        <input
+                            type='password'
+                            id='passwordConfirm'
+                            value={passwordConfirm}
+                            onChange={(e) => setPasswordConfirm(e.target.value)}
+                            required
+                        />
+                    </div>
+                    {error && <p className='error-message'>{error}</p>}
+                    {success && <p className='success-message'>{success}</p>}
+                    <button type='submit' className='signup-button'>회원가입</button>
+                </form>
+                <p className='login-link-container'>
+                    이미 계정이 있으신가요? <Link to='/login' className="login-link">로그인</Link>
+                </p>
+            </div>
+        </div>
+    );
+};
 
 export default Signup;

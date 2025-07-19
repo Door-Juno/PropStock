@@ -1,0 +1,23 @@
+.receipt-form {
+  margin-bottom: 20px;
+}
+
+.receipt-form input {
+  margin-right: 10px;
+  padding: 8px;
+}
+
+.receipts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receipts-table th, .receipts-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.receipts-table th {
+  background-color: #f2f2f2;
+}

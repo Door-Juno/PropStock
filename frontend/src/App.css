@@ -74,3 +74,28 @@ html, body, #root { /* #root는 React 앱이 마운트되는 div 입니다. */
   color: #2980b9;
   text-decoration: underline;
 }
+
+/* Tab Navigation Styles */
+.tab-nav {
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.tab-nav a {
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #555;
+  font-weight: bold;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tab-nav a.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+.tab-content {
+  padding: 20px 0;
+}

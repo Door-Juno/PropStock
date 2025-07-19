@@ -1,0 +1,19 @@
+.inventory-efficiency-report .report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.inventory-efficiency-report .report-item {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.inventory-efficiency-report .chart-container {
+  height: 300px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
