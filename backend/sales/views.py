@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from products.models import Product
+from sales.models import Sales
 
 
 class salesupload(APIView):  
@@ -24,30 +25,42 @@ class salesupload(APIView):
                 return Response({"message": "Unsupported file format."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"message": f"Failed to read file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         total_rows = len(df)
         processed_rows = 0
         errors = []
 
-        item_codes = df['item_code'].unique() #전체 item_code 수집,unique() 중복 제거
-
+        # 중복 제거된 item_code 수집
+        item_codes = df['item_code'].unique()
+        # DB에 존재하는 item_code만 가져옴
         existing_codes = set(
             Product.objects.filter(item_code__in=item_codes).values_list('item_code', flat=True)
-        ) # 한 번의 쿼리로 DB에 있는 item_code만 가져오기
-        
-        for idx, row in df.iterrows(): #반복문에서는 DB조회 대신 파이썬에서 검사
+        )
+
+        for idx, row in df.iterrows():
             try:
-                pd.to_datetime(row['date'], format='%Y-%m-%d')
+                # 날짜 변환
+                date = pd.to_datetime(row['date'], format='%Y-%m-%d').date()
 
                 item_code = row['item_code']
                 if item_code not in existing_codes:
                     raise ValueError(f"Item code '{item_code}' not found in database")
 
+                item = Product.objects.get(item_code=item_code)
+
+                # DB 저장
+                Sales.objects.create(
+                    date=date,
+                    item=item,
+                    quantity=int(row['quantity']),
+                    price=float(row['price'])
+                )
+
                 processed_rows += 1
 
             except Exception as e:
                 errors.append({
-                    "row": idx + 2,  # 헤더 고려해서 +2
+                    "row": idx + 2,  # 헤더 고려
                     "message": str(e)
                 })
 
