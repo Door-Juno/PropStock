@@ -1,7 +1,7 @@
 # backend/Dockerfile
 
-# Python 공식 이미지를 기반으로 사용 (Django 버전에 맞는 Python 버전 선택)
-FROM python:3.10-slim-buster
+# Python 공식 이미지를 기반으로 사용 (지원되는 'bookworm' 버전으로 변경)
+FROM python:3.10-slim-bookworm
 
 # 환경 변수 설정
 ENV PYTHONUNBUFFERED 1

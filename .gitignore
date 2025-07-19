@@ -65,3 +65,7 @@ mysql_data/
 
 
 ai/data/sales_data.csv
+
+GEMINI.md
+
+.dockerignore
