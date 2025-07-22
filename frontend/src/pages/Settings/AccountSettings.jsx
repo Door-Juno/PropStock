@@ -1,5 +1,5 @@
-// src/pages/Settings/AccountSettings.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './SettingsSection.css'; // 공통 스타일
 
 function AccountSettings() {
@@ -7,7 +7,37 @@ function AccountSettings() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    setError('로그인이 필요합니다.');
+                    setLoading(false);
+                    return;
+                }
+                const response = await axios.get('http://localhost:8000/api/auth/me/', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setUsername(response.data.username);
+                setEmail(response.data.email);
+            } catch (err) {
+                console.error('사용자 정보 로드 실패:', err);
+                setError('사용자 정보를 불러오는 데 실패했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handlePasswordChange = (e) => {
         e.preventDefault();
@@ -34,10 +64,23 @@ function AccountSettings() {
         setMessage('이메일 주소가 성공적으로 변경되었습니다!');
     };
 
+    if (loading) {
+        return <div className="settings-section">로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div className="settings-section error-message">{error}</div>;
+    }
+
     return (
         <div className="settings-section">
             <h2>계정 설정</h2>
             {message && <p className="form-message">{message}</p>}
+
+            <div className="user-info-display">
+                <p><strong>아이디:</strong> {username}</p>
+                <p><strong>이메일:</strong> {email}</p>
+            </div>
 
             <form onSubmit={handlePasswordChange} className="settings-form">
                 <h3>비밀번호 재설정</h3>

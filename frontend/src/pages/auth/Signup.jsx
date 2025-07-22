@@ -10,6 +10,11 @@ function Signup() {
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [useremail, setEmail] = useState('');
 
+    // Store table
+    const [storeName, setStoreName] = useState('');
+    const [storeIndustry, setStoreIndustry] = useState('');
+    const [storeRegion, setStoreRegion] = useState('');
+
     // 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -26,11 +31,15 @@ function Signup() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/api/auth/register/', { // signup -> register API 명세에 맞게 수정
-                email: useremail, // useremail -> email API 명세에 맞게 수정
+            const response = await axios.post('http://localhost:8000/api/auth/register/', { 
+                email: useremail, 
                 username,
                 password,
-                password_confirm: passwordConfirm, // passwordConfirm 추가
+                store: {
+                    name: storeName,
+                    industry: storeIndustry,
+                    region: storeRegion
+                }
             });
 
             setSuccess('회원가입이 완료되었습니다!')
@@ -48,7 +57,7 @@ function Signup() {
                 if (errorData.email) setError(`이메일: ${errorData.email[0]}`);
                 else if (errorData.username) setError(`아이디: ${errorData.username[0]}`);
                 else if (errorData.password) setError(`비밀번호: ${errorData.password[0]}`);
-                else if (errorData.password_confirm) setError(`비밀번호 확인: ${errorData.password_confirm[0]}`);
+                else if (errorData.store) setError(`상점 정보: ${JSON.stringify(errorData.store)}`);
                 else setError(errorData.detail || '회원가입 중 오류가 발생했습니다.');
             }
         }
@@ -97,6 +106,36 @@ function Signup() {
                             id='passwordConfirm'
                             value={passwordConfirm}
                             onChange={(e) => setPasswordConfirm(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='storeName'>상점 이름</label>
+                        <input
+                            type='text'
+                            id='storeName'
+                            value={storeName}
+                            onChange={(e) => setStoreName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='storeIndustry'>업종</label>
+                        <input
+                            type='text'
+                            id='storeIndustry'
+                            value={storeIndustry}
+                            onChange={(e) => setStoreIndustry(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='storeRegion'>지역</label>
+                        <input
+                            type='text'
+                            id='storeRegion'
+                            value={storeRegion}
+                            onChange={(e) => setStoreRegion(e.target.value)}
                             required
                         />
                     </div>
