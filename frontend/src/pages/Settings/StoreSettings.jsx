@@ -1,5 +1,5 @@
-// src/pages/Settings/StoreSettings.jsx
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './SettingsSection.css'; // 공통 스타일
 
 function StoreSettings() {
@@ -7,7 +7,6 @@ function StoreSettings() {
         name: '',
         industry: '',
         region: '',
-        openingHours: '',
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,15 +15,27 @@ function StoreSettings() {
     useEffect(() => {
         const fetchStoreInfo = async () => {
             try {
-                // 데이터 소스: GET /api/store/
-                const response = await fetch('/api/store/');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    setError('로그인이 필요합니다.');
+                    setLoading(false);
+                    return;
                 }
-                const data = await response.json();
-                setStoreInfo(data);
+                const response = await axios.get('http://localhost:8000/api/auth/me/', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (response.data.store) {
+                    setStoreInfo({
+                        name: response.data.store.name || '',
+                        industry: response.data.store.industry || '',
+                        region: response.data.store.region || '',
+                    });
+                }
             } catch (err) {
-                setError(err);
+                console.error('매장 정보 로드 실패:', err);
+                setError('매장 정보를 불러오는 데 실패했습니다.');
             } finally {
                 setLoading(false);
             }
@@ -45,23 +56,17 @@ function StoreSettings() {
         e.preventDefault();
         setMessage('');
         try {
-            // 데이터 전송: PUT /api/store/
-            const response = await fetch('/api/store/', {
-                method: 'PUT',
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.put('http://localhost:8000/api/store/', storeInfo, {
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${token}` // 인증 토큰이 필요할 수 있습니다.
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(storeInfo),
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            setStoreInfo(data); // 업데이트된 정보로 상태 갱신
+            setStoreInfo(response.data); // 업데이트된 정보로 상태 갱신
             setMessage('매장 정보가 성공적으로 업데이트되었습니다!');
         } catch (err) {
-            setError(err);
+            console.error('매장 정보 업데이트 실패:', err);
             setMessage(`매장 정보 업데이트 실패: ${err.message}`);
         }
     };
@@ -104,17 +109,6 @@ function StoreSettings() {
                         name="region"
                         value={storeInfo.region}
                         onChange={handleChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="store-opening-hours">영업 시간:</label>
-                    <input
-                        type="text"
-                        id="store-opening-hours"
-                        name="openingHours"
-                        value={storeInfo.openingHours}
-                        onChange={handleChange}
-                        placeholder="예: 09:00 - 22:00"
                     />
                 </div>
                 <button type="submit" className="settings-submit-button">정보 저장</button>

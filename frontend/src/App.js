@@ -18,11 +18,18 @@ import SalesDataUpload from './pages/DataManagement/SalesDataUpload';
 import SalesHistory from './pages/DataManagement/SalesHistory';
 import Signup from './pages/auth/Signup'
 
-// 더미 페이지 컴포넌트
-const Inventory = () => <div className="page-content"><h2>재고 관리 페이지</h2><p>여기에 재고 관리 내용이 들어갑니다.</p></div>;
-const Orders = () => <div className="page-content"><h2>발주 관리 페이지</h2><p>여기에 발주 관리 내용이 들어갑니다.</p></div>;
-const Prediction = () => <div className="page-content"><h2>수요 예측 페이지</h2><p>여기에 수요 예측 내용이 들어갑니다.</p></div>;
-const Reports = () => <div className="page-content"><h2>리포트 페이지</h2><p>여기에 리포트 내용이 들어갑니다.</p></div>;
+import InventoryPage from './pages/Inventory/InventoryPage';
+import ProductManagement from './pages/Inventory/ProductManagement';
+import InventoryStatus from './pages/Inventory/InventoryStatus';
+import ReceiptsManagement from './pages/Inventory/ReceiptsManagement';
+import OrderPredictionPage from './pages/OrderPrediction/OrderPredictionPage';
+import SalesForecast from './pages/OrderPrediction/SalesForecast';
+import OrderRecommendation from './pages/OrderPrediction/OrderRecommendation';
+import ReportsPage from './pages/Reports/ReportsPage';
+import SalesTrendReport from './pages/Reports/SalesTrendReport';
+import InventoryEfficiencyReport from './pages/Reports/InventoryEfficiencyReport';
+import CostSavingsReport from './pages/Reports/CostSavingsReport';
+
 const NotFound = () => <div className="page-content"><h2>404 - 페이지를 찾을 수 없습니다</h2></div>;
 
 // 앱의 레이아웃을 관리하는 메인 컴포넌트
@@ -46,10 +53,23 @@ function AppLayout() {
               <Route path="upload" element={<SalesDataUpload />} />
               <Route path="history" element={<SalesHistory />} />
             </Route>
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/prediction" element={<Prediction />} />
-            <Route path="/reports" element={<Reports />} />
+            <Route path="/inventory" element={<InventoryPage />}>
+              <Route index element={<Navigate to="status" replace />} />
+              <Route path="products" element={<ProductManagement />} />
+              <Route path="status" element={<InventoryStatus />} />
+              <Route path="receipts" element={<ReceiptsManagement />} />
+            </Route>
+            <Route path="/order-prediction" element={<OrderPredictionPage />}>
+              <Route index element={<Navigate to="recommendation" replace />} />
+              <Route path="sales-forecast" element={<SalesForecast />} />
+              <Route path="recommendation" element={<OrderRecommendation />} />
+            </Route>
+            <Route path="/reports" element={<ReportsPage />}>
+              <Route index element={<Navigate to="sales-trend" replace />} />
+              <Route path="sales-trend" element={<SalesTrendReport />} />
+              <Route path="inventory-efficiency" element={<InventoryEfficiencyReport />} />
+              <Route path="cost-savings" element={<CostSavingsReport />} />
+            </Route>
 
             <Route path="/settings" element={<SettingsPage />}>
               <Route index element = {<Navigate to = "account" replace/>}/>

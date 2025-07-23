@@ -1,12 +1,37 @@
-// src/pages/Settings/SettingsPage.jsx
 import React from 'react';
-import { Routes, Route, NavLink, Outlet } from 'react-router-dom';
+import { Routes, Route, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import AccountSettings from './AccountSettings';
 import StoreSettings from './StoreSettings';
 import NotificationSettings from './NotificationSettings';
 import './SettingsPage.css'; // 설정 페이지 전체 CSS
 
 function SettingsPage() {
+    const navigate = useNavigate();
+
+    const handle_Logout = async () => {
+        if (!window.confirm("로그아웃 하시겠습니까?")) {
+            return;
+        }
+
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+            try {
+                await axios.post('http://localhost:8000/api/auth/logout/', {
+                    refresh: refreshToken
+                });
+            } catch (error) {
+                console.error('로그아웃 실패:', error);
+                // 백엔드에서 오류가 발생해도 클라이언트 측 토큰은 삭제
+            }
+        }
+        // 로컬 스토리지에서 토큰 제거
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        // 로그인 페이지로 리디렉션
+        navigate('/login');
+    };
+
     return (
         <div className="settings-page-container">
             <h1 className="settings-page-title">설정</h1>
@@ -40,7 +65,7 @@ function SettingsPage() {
                         </li>
                     </ul>
                     <div className="logout-button-container">
-                        <button className="logout-button" onClick={() => alert('로그아웃 처리 로직')}>
+                        <button className="logout-button" onClick={handle_Logout}>
                             로그아웃
                         </button>
                     </div>

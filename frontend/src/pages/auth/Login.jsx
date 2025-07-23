@@ -4,7 +4,7 @@ import axios from 'axios';
 import './Login.css';
 
 function Login () {
-    const [username,setUsername] = useState('');
+    const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate() ; // 페이지 이동을 위한 훅
@@ -17,7 +17,7 @@ function Login () {
             // login API 들어오는 자리임.
             // 실제 API 는 환경변수로 관리할 것
             const response = await axios.post('http://localhost:8000/api/auth/login/', {
-                username,
+                email,
                 password,
             });
 
@@ -25,7 +25,7 @@ function Login () {
             const { access , refresh } = response.data ; 
             // 토큰은 로컬 스토리지에 저장
             localStorage.setItem('accessToken', access);
-            localStorage.setItem('accessToken', refresh);
+            localStorage.setItem('refreshToken', refresh);
 
             navigate('/dashboard');
         }
@@ -47,12 +47,12 @@ function Login () {
                 <h2>로그인</h2>
                 <form onSubmit={handleSubmit}>
                     <div className='form-group'>
-                        <label htmlFor='username'> 아이디</label>
+                        <label htmlFor='email'> 이메일</label>
                         <input
-                            type='text'
-                            id='username'
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            type='email'
+                            id='email'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
@@ -70,7 +70,7 @@ function Login () {
                     <button type='submit' className='login-button'>로그인</button>
                 </form>
                 <p className='signup-link-container'>
-                    <Link to='signup' className="signup-link">회원가입</Link>
+                    <Link to='/signup' className="signup-link">회원가입</Link>
                 </p>
             </div>
         </div>

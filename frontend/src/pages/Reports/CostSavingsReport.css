@@ -1,0 +1,29 @@
+.cost-savings-report .report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.cost-savings-report .report-item {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.cost-savings-report .summary-card {
+  text-align: center;
+}
+
+.cost-savings-report .summary-card .amount {
+  font-size: 2em;
+  font-weight: bold;
+  color: #3498db;
+}
+
+.cost-savings-report .chart-container {
+  height: 300px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

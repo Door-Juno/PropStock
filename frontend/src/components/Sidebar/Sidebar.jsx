@@ -17,13 +17,10 @@ function Sidebar() {
           <Link to="/inventory">재고 관리</Link>
         </li>
         <li>
-          <Link to="/orders">발주 관리</Link>
+          <Link to="/order-prediction">발주 & 예측</Link>
         </li>
         <li>
-          <Link to="/prediction">수요 예측</Link>
-        </li>
-        <li>
-          <Link to="/reports">리포트</Link>
+          <Link to="/reports">리포트 & 분석</Link>
         </li>
         {/* 필요에 따라 더 많은 메뉴 항목을 추가하세요. */}
       </ul>
