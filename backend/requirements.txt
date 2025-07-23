@@ -7,3 +7,4 @@ djangorestframework-simplejwt
 # 필요한 다른 패키지들을 여기에 추가하세요.
 python-dotenv
 drf-spectacular
+pandas
