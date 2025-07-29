@@ -13,7 +13,12 @@ function DailyOrderRecommendationSummary() {
             try {
                 const today = new Date().toISOString().split('T')[0]; // 오늘 날짜
                 // 실제 API 엔드포인트: /api/predictions/orders/recommendations/?date=today
-                const response = await fetch(`/api/predictions/orders/recommendations/?date=${today}`);
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`/api/predictions/orders/recommendations/?date=${today}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
