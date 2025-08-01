@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import salesupload
+from .views import SalesListCreateAPIView, SalesBulkUploadAPIView
 
 urlpatterns = [
-    path('upload-sales-data/', salesupload.as_view(), name='upload-sales-data'),
-
+    path('records/', SalesListCreateAPIView.as_view(), name='sales-records'),
+    path('bulk-upload/', SalesBulkUploadAPIView.as_view(), name='sales-bulk-upload'),
 ]

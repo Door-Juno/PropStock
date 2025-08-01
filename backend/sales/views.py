@@ -1,14 +1,61 @@
-from django.shortcuts import render
-import pandas as pd
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from products.models import Product
 from sales.models import Sales
+from .serializer import SalesSerializer # SalesSerializer 임포트
+from datetime import datetime # datetime 임포트 추가
+
+class SalesListCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        store = request.user.store
+        print(f"DEBUG: User store for filtering: {store.id} - {store.name}")
+        sales_records = Sales.objects.filter(store=store)
+        print(f"DEBUG: Initial sales records count for this store: {sales_records.count()}")
+
+        start_date_str = request.query_params.get('start_date')
+        end_date_str = request.query_params.get('end_date')
+
+        if start_date_str:
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                print(f"DEBUG: Filtering sales records from start_date: {start_date}")
+                sales_records = sales_records.filter(date__gte=start_date)
+            except ValueError:
+                return Response({"error": "Invalid start_date format. Please use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if end_date_str:
+            try:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                print(f"DEBUG: Filtering sales records up to end_date: {end_date}")
+                sales_records = sales_records.filter(date__lte=end_date)
+            except ValueError:
+                return Response({"error": "Invalid end_date format. Please use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        sales_records = sales_records.order_by('-date')
+        serializer = SalesSerializer(sales_records, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # 요청 데이터를 복사하여 수정 가능하게 만듦
+        data = request.data.copy()
+        store_id = request.user.store.id
+
+        # 여러 개의 판매 기록(배열)이 들어오므로, 각 객체에 store_id를 추가
+        for item in data:
+            item['store'] = store_id
+
+        serializer = SalesSerializer(data=data, many=True)
+        if serializer.is_valid():
+            serializer.save() # Serializer의 save가 각 객체의 create를 호출
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class salesupload(APIView):  
+class SalesBulkUploadAPIView(APIView):  # 기존 salesupload 이름을 변경
     permission_classes = [IsAuthenticated]
         
     def post(self, request):
@@ -50,10 +97,13 @@ class salesupload(APIView):
 
                 # DB 저장
                 Sales.objects.create(
+                    store=request.user.store, # store 정보 추가
                     date=date,
                     item=item,
                     quantity=int(row['quantity']),
-                    price=float(row['price'])
+                    selling_price=float(row['selling_price']),
+                    cost_price=float(row['cost_price']),
+                    is_event_day=bool(row['is_event_day'])
                 )
 
                 processed_rows += 1

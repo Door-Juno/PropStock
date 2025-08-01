@@ -29,7 +29,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST=db # DB 서비스 이름으로 호스트 지정 (Docker Compose 네트워크 내부에서)
       - POSTGRES_PORT=5432
-      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai_service:8001/predict_inventory/} # AI 서비스 URL (기본값 설정)
     depends_on: # db 서비스와 ai_service가 완전히 시작된 후에 backend 서비스 시작
       db:
         condition: service_healthy # DB 서비스가 healthcheck를 통과해야 시작

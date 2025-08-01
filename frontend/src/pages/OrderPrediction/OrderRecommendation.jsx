@@ -3,53 +3,91 @@ import './OrderRecommendation.css'; // CSS 파일 임포트
 
 const OrderRecommendation = () => {
   const [recommendations, setRecommendations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // TODO: API 연동하여 발주 추천 데이터 가져오기 (useEffect 사용)
+  const fetchRecommendations = async () => {
+    setIsLoading(true);
+    setError(null);
+    setRecommendations([]);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('/api/predictions/orders/recommendations/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || '발주 추천 데이터를 불러오는 데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setRecommendations(data);
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // 임시 데이터
-    const mockRecommendations = [
-      { id: 1, item_code: 'P001', name: '바나나우유', current_stock: 30, predicted_sales: 150, stock_out_date: '2025-07-22', recommended_quantity: 120, order_date: '2025-07-20' },
-      { id: 2, item_code: 'P004', name: '감자칩', current_stock: 15, predicted_sales: 50, stock_out_date: '2025-07-21', recommended_quantity: 40, order_date: '2025-07-19' },
-    ];
-    setRecommendations(mockRecommendations);
+    fetchRecommendations();
   }, []);
 
   const handleOrderPlaced = (recommendationId) => {
-    // TODO: API 연동하여 발주 완료 처리
+    // TODO: API 연동하여 발주 완료 처리 (현재는 콘솔 로그만 출력)
     console.log('Order placed for:', recommendationId);
+    alert(`발주 완료 처리: ${recommendationId}`);
   };
 
   return (
     <div className="order-recommendation">
       <h2>최적 발주량 추천</h2>
-      <table className="recommendation-table">
-        <thead>
-          <tr>
-            <th>품목코드</th>
-            <th>품목명</th>
-            <th>현재고</th>
-            <th>예상 소진일</th>
-            <th>추천 발주량</th>
-            <th>권장 발주 시점</th>
-            <th>작업</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recommendations.map((rec) => (
-            <tr key={rec.id}>
-              <td>{rec.item_code}</td>
-              <td>{rec.name}</td>
-              <td>{rec.current_stock}</td>
-              <td>{rec.stock_out_date}</td>
-              <td>{rec.recommended_quantity}</td>
-              <td>{rec.order_date}</td>
-              <td>
-                <button onClick={() => handleOrderPlaced(rec.id)} className="order-btn">발주 완료</button>
-              </td>
+      <button onClick={fetchRecommendations} disabled={isLoading} className="refresh-btn">
+        {isLoading ? '추천 로딩 중...' : '발주 추천 새로고침'}
+      </button>
+
+      {error && <p className="error-message">오류: {error}</p>}
+
+      {isLoading && <div className="loading-spinner"></div>}
+
+      {recommendations.length === 0 && !isLoading && !error ? (
+        <p>현재 추천할 발주 품목이 없습니다.</p>
+      ) : (
+        <table className="recommendation-table">
+          <thead>
+            <tr>
+              <th>품목코드</th>
+              <th>품목명</th>
+              <th>현재고</th>
+              <th>예상 소진일</th>
+              <th>추천 발주량</th>
+              <th>권장 발주 시점</th>
+              <th>작업</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {recommendations.map((rec) => (
+              <tr key={rec.item_code}>
+                <td>{rec.item_code}</td>
+                <td>{rec.item_name}</td>
+                <td>{rec.current_stock}</td>
+                <td>{rec.stock_out_estimate_date || 'N/A'}</td>
+                <td>{rec.recommended_order_quantity}</td>
+                <td>{rec.order_by_date || 'N/A'}</td>
+                <td>
+                  <button onClick={() => handleOrderPlaced(rec.item_code)} className="order-btn">발주 완료</button>
+                </td>
+              </tr>
+            ))
+            }
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

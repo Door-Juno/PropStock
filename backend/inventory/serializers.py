@@ -4,16 +4,16 @@ from .models import InventoryTransaction
 from products.models import Product
 
 class InventoryTransactionSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source='product.name', read_only=True)
+    item_name = serializers.CharField(source='product.name', read_only=True)
     store_name = serializers.CharField(source='store.name', read_only=True)
 
     class Meta:
         model = InventoryTransaction
         fields = [
-            'id', 'store', 'store_name', 'product', 'product_name',
+            'id', 'store', 'store_name', 'product', 'item_name',
             'date', 'type', 'quantity', 'notes', 'created_at'
         ]
-        read_only_fields = ['id', 'store', 'store_name', 'product_name', 'date', 'created_at']
+        read_only_fields = ['id', 'store', 'store_name', 'item_name', 'created_at']
 
     def create(self, validated_data):
         with transaction.atomic():
@@ -26,7 +26,7 @@ class InventoryTransactionSerializer(serializers.ModelSerializer):
                 product.current_stock += quantity
             elif transaction_type == 'out':
                 if product.current_stock < quantity:
-                     raise serializers.ValidationError(f"재고 부족: 현재 재고({product.current_stock})보다 많은 수량({instance.quantity})을 출고할 수 없습니다.")
+                     raise serializers.ValidationError(f"재고 부족: 현재 재고({product.current_stock})보다 많은 수량({quantity})을 출고할 수 없습니다.")
                 product.current_stock -= quantity
             product.save()
 

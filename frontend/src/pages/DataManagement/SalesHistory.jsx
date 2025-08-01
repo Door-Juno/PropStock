@@ -1,4 +1,3 @@
-// src/pages/DataManagement/SalesHistory.jsx
 import React, { useState, useEffect } from 'react';
 import './DataManagementSection.css'; // 공통 스타일
 
@@ -10,15 +9,14 @@ function SalesHistory() {
     const [searchFilters, setSearchFilters] = useState({
         startDate: '',
         endDate: '',
-        itemName: '',
+        // itemName: '', // 백엔드에서 지원하지 않는다면 주석 처리
     });
     const [editingRecordId, setEditingRecordId] = useState(null); // 수정 중인 레코드 ID
     const [editFormData, setEditFormData] = useState({}); // 수정 폼 데이터
 
     useEffect(() => {
-        // 컴포넌트 마운트 시 초기 데이터 로드
         fetchSalesRecords();
-    }, []); // 빈 배열: 최초 1회만 실행
+    }, []);
 
     const fetchSalesRecords = async (filters = searchFilters) => {
         setLoading(true);
@@ -28,10 +26,14 @@ function SalesHistory() {
             const queryParams = new URLSearchParams();
             if (filters.startDate) queryParams.append('start_date', filters.startDate);
             if (filters.endDate) queryParams.append('end_date', filters.endDate);
-            if (filters.itemName) queryParams.append('item_name', filters.itemName);
+            // if (filters.itemName) queryParams.append('item_name', filters.itemName);
 
-            // 데이터 조회: GET /api/sales/records/
-            const response = await fetch(`/api/sales/records/?${queryParams.toString()}`);
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`/api/sales/records/?${queryParams.toString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -61,7 +63,16 @@ function SalesHistory() {
 
     const handleEditClick = (record) => {
         setEditingRecordId(record.id);
-        setEditFormData({ ...record }); // 현재 레코드 데이터로 폼 채우기
+        // API 응답 필드명에 맞춰 editFormData 초기화
+        setEditFormData({
+            id: record.id,
+            date: record.date,
+            quantity: record.quantity,
+            selling_price: record.selling_price,
+            cost_price: record.cost_price,
+            is_event_day: record.is_event_day,
+            // item_code, item_name은 수정하지 않으므로 포함하지 않음
+        });
     };
 
     const handleEditFormChange = (e) => {
@@ -76,14 +87,22 @@ function SalesHistory() {
         setError('');
         setMessage('');
         try {
-            // 데이터 수정: PUT/PATCH /api/sales/records/{id}/
+            const token = localStorage.getItem('accessToken');
+            const dataToSend = {
+                date: editFormData.date,
+                quantity: editFormData.quantity,
+                selling_price: editFormData.selling_price,
+                cost_price: editFormData.cost_price,
+                is_event_day: editFormData.is_event_day,
+            };
+
             const response = await fetch(`/api/sales/records/${id}/`, {
-                method: 'PATCH', // 부분 업데이트이므로 PATCH 사용
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(editFormData),
+                body: JSON.stringify(dataToSend),
             });
 
             if (!response.ok) {
@@ -95,7 +114,7 @@ function SalesHistory() {
             setSalesRecords(prevRecords =>
                 prevRecords.map(rec => (rec.id === id ? updatedRecord : rec))
             );
-            setEditingRecordId(null); // 수정 모드 종료
+            setEditingRecordId(null);
             setMessage('판매 기록이 성공적으로 수정되었습니다.');
 
         } catch (err) {
@@ -115,10 +134,10 @@ function SalesHistory() {
         setError('');
         setMessage('');
         try {
-            // 데이터 삭제: DELETE /api/sales/records/{id}/
+            const token = localStorage.getItem('accessToken');
             const response = await fetch(`/api/sales/records/${id}/`, {
                 method: 'DELETE',
-                // headers: { 'Authorization': `Bearer ${token}` },
+                headers: { 'Authorization': `Bearer ${token}` },
             });
 
             if (!response.ok) {
@@ -161,7 +180,8 @@ function SalesHistory() {
                         onChange={handleSearchChange}
                     />
                 </div>
-                <div className="form-group">
+                {/* 품목명 검색은 백엔드 API에서 지원하지 않는다면 주석 처리하거나 백엔드 구현 필요 */}
+                {/* <div className="form-group">
                     <label htmlFor="itemNameSearch">품목명:</label>
                     <input
                         type="text"
@@ -171,7 +191,7 @@ function SalesHistory() {
                         onChange={handleSearchChange}
                         placeholder="품목명으로 검색"
                     />
-                </div>
+                </div> */}
                 <button type="submit" className="data-management-submit-button">검색</button>
             </form>
 
@@ -200,12 +220,12 @@ function SalesHistory() {
                                     {editingRecordId === record.id ? (
                                         <>
                                             <td><input type="date" name="date" value={editFormData.date || ''} onChange={handleEditFormChange} /></td>
-                                            <td><input type="text" name="itemCode" value={editFormData.itemCode || ''} onChange={handleEditFormChange} /></td>
-                                            <td><input type="text" name="itemName" value={editFormData.itemName || ''} onChange={handleEditFormChange} /></td>
+                                            <td>{record.item_code}</td> {/* 읽기 전용 */}
+                                            <td>{record.item_name}</td> {/* 읽기 전용 */}
                                             <td><input type="number" name="quantity" value={editFormData.quantity || ''} onChange={handleEditFormChange} /></td>
-                                            <td><input type="number" name="price" value={editFormData.price || ''} onChange={handleEditFormChange} /></td>
-                                            <td><input type="number" name="cost" value={editFormData.cost || ''} onChange={handleEditFormChange} /></td>
-                                            <td><input type="checkbox" name="isPromotion" checked={editFormData.isPromotion || false} onChange={handleEditFormChange} /></td>
+                                            <td><input type="number" name="selling_price" value={editFormData.selling_price || ''} onChange={handleEditFormChange} /></td>
+                                            <td><input type="number" name="cost_price" value={editFormData.cost_price || ''} onChange={handleEditFormChange} /></td>
+                                            <td><input type="checkbox" name="is_event_day" checked={editFormData.is_event_day || false} onChange={handleEditFormChange} /></td>
                                             <td>
                                                 <button onClick={() => handleSaveEdit(record.id)}>저장</button>
                                                 <button onClick={handleCancelEdit}>취소</button>
@@ -214,12 +234,12 @@ function SalesHistory() {
                                     ) : (
                                         <>
                                             <td>{record.date}</td>
-                                            <td>{record.itemCode}</td>
-                                            <td>{record.itemName}</td>
+                                            <td>{record.item_code}</td>
+                                            <td>{record.item_name}</td>
                                             <td>{record.quantity}</td>
-                                            <td>{record.price.toLocaleString()}</td>
-                                            <td>{record.cost.toLocaleString()}</td>
-                                            <td>{record.isPromotion ? 'O' : 'X'}</td>
+                                            <td>{record.selling_price.toLocaleString()}</td>
+                                            <td>{record.cost_price.toLocaleString()}</td>
+                                            <td>{record.is_event_day ? 'O' : 'X'}</td>
                                             <td>
                                                 <button className="edit-button" onClick={() => handleEditClick(record)}>수정</button>
                                                 <button className="delete-button" onClick={() => handleDelete(record.id)}>삭제</button>

@@ -25,6 +25,7 @@ function SalesForecast() {
             }
 
             const data = await response.json();
+            console.log("Received forecast data:", data); // 디버그 출력 추가
             setForecastData(data);
 
         } catch (err) {

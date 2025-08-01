@@ -84,7 +84,7 @@ async def predict_sales(request: PredictRequest) :
             # 이 함수는 예측 날짜와 필요한 외부 요인(공휴일, 날씨 등)을 포함한 피처를 생성해야 합니다.
             # prepare_data_for_prediction 함수는 날짜만 받지만, 실제로는 추가적인 인자가 필요할 수 있습니다.
             # 여기서는 예시로 predict_date만 전달
-            future_df = prepare_data_for_prediction(request.predict_date)
+            future_df = prepare_data_for_prediction(request.predict_date, request.is_event_day)
 
             # Prophet 예측 수행
             forecast = model.predict(future_df)
