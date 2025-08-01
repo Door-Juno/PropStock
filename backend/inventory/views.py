@@ -3,9 +3,41 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .serializers import InventoryTransactionSerializer, ProductStatusSerializer # ProductStatusSerializer 추가
 from products.models import Product # Product 모델 임포트
+from .models import InventoryTransaction # InventoryTransaction 모델 임포트
+from datetime import datetime
 
 class InventoryTransactionAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        store = request.user.store
+        transactions = InventoryTransaction.objects.filter(product__store=store).order_by('-date', '-id')
+
+        start_date_str = request.query_params.get('start_date')
+        end_date_str = request.query_params.get('end_date')
+        transaction_type = request.query_params.get('type')
+
+        if start_date_str:
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                transactions = transactions.filter(date__gte=start_date)
+            except ValueError:
+                return Response({"error": "Invalid start_date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if end_date_str:
+            try:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                transactions = transactions.filter(date__lte=end_date)
+            except ValueError:
+                return Response({"error": "Invalid end_date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if transaction_type:
+            if transaction_type not in ['in', 'out']:
+                return Response({"error": "Invalid type. Use 'in' or 'out'."}, status=status.HTTP_400_BAD_REQUEST)
+            transactions = transactions.filter(type=transaction_type)
+
+        serializer = InventoryTransactionSerializer(transactions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         # 현재 인증된 사용자의 store 정보를 가져옵니다.

@@ -9,34 +9,70 @@ function ReceiptsManagement() {
         quantity: 1,
         notes: '',
     });
-    const [recentReceipts, setRecentReceipts] = useState([]);
-    const [message, setMessage] = useState('');
+    const [transactions, setTransactions] = useState([]); // 입출고 내역 상태 (recentReceipts 대신)
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+    const [searchFilters, setSearchFilters] = useState({
+        startDate: '',
+        endDate: '',
+        type: '', // 'in', 'out' 또는 '' (전체)
+    });
 
-    // 컴포넌트 마운트 시 품목 목록을 가져옵니다.
+    // 컴포넌트 마운트 시 품목 목록 및 입출고 내역을 가져옵니다.
     useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                // TODO: 실제 API 엔드포인트로 수정해야 합니다.
-                const token = localStorage.getItem('accessToken');
-                const response = await fetch('/api/products/', {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-                if (!response.ok) {
-                    throw new Error('품목 목록을 불러오는 데 실패했습니다.');
-                }
-                const data = await response.json();
-                setProducts(data);
-                // 기본 선택값 설정
-                if (data.length > 0) {
-                    setReceiptRecord(prev => ({ ...prev, product: data[0].id }));
-                }
-            } catch (err) {
-                setError(err.message);
-            }
-        };
         fetchProducts();
+        fetchTransactions();
     }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('/api/products/', {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (!response.ok) {
+                throw new Error('품목 목록을 불러오는 데 실패했습니다.');
+            }
+            const data = await response.json();
+            setProducts(data);
+            if (data.length > 0) {
+                setReceiptRecord(prev => ({ ...prev, product: data[0].id }));
+            }
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const fetchTransactions = async (filters = searchFilters) => {
+        setLoading(true);
+        setError('');
+        setMessage('');
+        try {
+            const queryParams = new URLSearchParams();
+            if (filters.startDate) queryParams.append('start_date', filters.startDate);
+            if (filters.endDate) queryParams.append('end_date', filters.endDate);
+            if (filters.type) queryParams.append('type', filters.type);
+
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`/api/inventory/transactions/?${queryParams.toString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setTransactions(data);
+            setMessage('입출고 내역을 불러왔습니다.');
+        } catch (err) {
+            setError(`입출고 내역 로드 실패: ${err.message}`);
+            setTransactions([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,6 +80,19 @@ function ReceiptsManagement() {
             ...prevRecord,
             [name]: value
         }));
+    };
+
+    const handleSearchChange = (e) => {
+        const { name, value } = e.target;
+        setSearchFilters(prevFilters => ({
+            ...prevFilters,
+            [name]: value
+        }));
+    };
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        fetchTransactions(searchFilters);
     };
 
     const handleSubmit = async (e) => {
@@ -57,7 +106,7 @@ function ReceiptsManagement() {
         }
 
         try {
-            const token = localStorage.getItem('accessToken'); // 예시: 로컬 스토리지에서 토큰 가져오기
+            const token = localStorage.getItem('accessToken');
             const response = await fetch('/api/inventory/transactions/', {
                 method: 'POST',
                 headers: {
@@ -75,9 +124,9 @@ function ReceiptsManagement() {
                 throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
             }
 
-            const newReceipt = await response.json();
             setMessage('입고 기록이 성공적으로 추가되었습니다!');
-            setRecentReceipts(prevReceipts => [newReceipt, ...prevReceipts.slice(0, 4)]);
+            // 입고 후 내역 새로고침
+            fetchTransactions();
             
             // 폼 초기화
             setReceiptRecord({
@@ -142,26 +191,67 @@ function ReceiptsManagement() {
             </form>
 
             <div className="data-table-container">
-                <h3>최근 입고 내역</h3>
-                {recentReceipts.length === 0 ? (
-                    <p>최근 입고 내역이 없습니다.</p>
+                <h3>입출고 내역</h3>
+                <form onSubmit={handleSearchSubmit} className="search-filter-form">
+                    <div className="form-group">
+                        <label htmlFor="startDate">시작 날짜:</label>
+                        <input
+                            type="date"
+                            id="startDate"
+                            name="startDate"
+                            value={searchFilters.startDate}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="endDate">종료 날짜:</label>
+                        <input
+                            type="date"
+                            id="endDate"
+                            name="endDate"
+                            value={searchFilters.endDate}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="type">유형:</label>
+                        <select
+                            id="type"
+                            name="type"
+                            value={searchFilters.type}
+                            onChange={handleSearchChange}
+                        >
+                            <option value="">전체</option>
+                            <option value="in">입고</option>
+                            <option value="out">출고</option>
+                        </select>
+                    </div>
+                    <button type="submit" className="data-management-submit-button">검색</button>
+                </form>
+
+                {loading ? (
+                    <p>입출고 내역 로딩 중...</p>
+                ) : transactions.length === 0 ? (
+                    <p>조회된 입출고 내역이 없습니다.</p>
                 ) : (
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>처리 시간</th>
+                                <th>날짜</th>
+                                <th>유형</th>
                                 <th>품목명</th>
                                 <th>수량</th>
                                 <th>비고</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {recentReceipts.map((receipt) => (
-                                <tr key={receipt.id}>
-                                    <td>{new Date(receipt.created_at).toLocaleString()}</td>
-                                    <td>{receipt.product_name}</td>
-                                    <td>{receipt.quantity}</td>
-                                    <td>{receipt.notes}</td>
+                            {transactions.map((transaction) => (
+                                <tr key={transaction.id}>
+                                    <td>{transaction.date}</td>
+                                    <td>{transaction.type === 'in' ? '입고' : '출고'}</td>
+                                    <td>{transaction.item_name}</td>
+                                    <td>{transaction.quantity}</td>
+                                    <td>{transaction.notes}</td>
                                 </tr>
                             ))}
                         </tbody>

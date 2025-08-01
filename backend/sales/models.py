@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from products.models import Product
 from users.models import Store
 
@@ -17,6 +17,18 @@ class Sales(models.Model):
     cost_price = models.IntegerField(default=0)
     # AI 학습 시 중요한 변수가 될 수 있는 행사일 여부
     is_event_day = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # 데이터베이스 트랜잭션으로 원자성 보장
+        with transaction.atomic():
+            # 재고 차감 로직 (새로운 판매 기록일 때만 실행)
+            if self.pk is None:  # 새로운 객체가 생성될 때
+                # 연결된 상품의 재고를 가져와서 판매 수량만큼 차감
+                self.item.current_stock -= self.quantity
+                self.item.save()
+            
+            # 원래의 save() 메서드 호출
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.date} - {self.item.name} ({self.quantity})"

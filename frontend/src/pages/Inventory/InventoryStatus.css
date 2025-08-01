@@ -13,14 +13,19 @@
   background-color: #f2f2f2;
 }
 
-.inventory-table .status-low td {
-  background-color: #f8d7da; /* 빨간색 계열 */
+.inventory-table .status-low {
+  background-color: #f8d7da; /* 빨간색 계열 - 부족 */
 }
 
-.inventory-table .status-high td {
-  background-color: #fff3cd; /* 노란색 계열 */
+.inventory-table .status-warning {
+  background-color: #fff3cd; /* 노란색 계열 - 주의 */
 }
 
-.inventory-table .status-normal td {
-  background-color: #d4edda; /* 녹색 계열 */
+.inventory-table .status-high {
+  background-color: #cce5ff; /* 파란색 계열 - 과잉 (향후 사용 가능) */
+}
+
+.inventory-table .status-normal {
+  /* 정상 상태는 특별한 배경색 없이 기본 테이블 색상을 사용하거나, 연한 녹색을 사용할 수 있습니다. */
+  /* background-color: #d4edda; */ 
 }

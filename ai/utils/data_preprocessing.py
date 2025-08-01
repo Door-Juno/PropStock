@@ -32,7 +32,7 @@ HOLIDATS_DATA = pd.DataFrame({
 
 
 # Prophet 모델의 DataFrame을 생성
-def prepare_data_for_prediction(predict_date : date) -> pd.DataFrame:
+def prepare_data_for_prediction(predict_date : date, is_event_day: int = 0) -> pd.DataFrame:
     future_df = pd.DataFrame({'ds' : [predict_date]})
 
     # 학습 시 추가했던 피처들을 추가
@@ -41,7 +41,7 @@ def prepare_data_for_prediction(predict_date : date) -> pd.DataFrame:
     future_df['공휴일'] = int(is_hoilday) 
 
     # 2. 행사여부
-    future_df['행사여부'] = 0
+    future_df['행사 여부'] = is_event_day # 매개변수로 받은 값 사용
 
     # 3. 요일
     future_df['요일_숫자'] = pd.to_datetime(future_df['ds']).dt.dayofweek

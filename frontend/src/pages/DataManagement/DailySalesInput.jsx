@@ -1,26 +1,44 @@
-// src/pages/DataManagement/DailySalesInput.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './DataManagementSection.css'; // 공통 스타일
 
 function DailySalesInput() {
-    const [salesRecord, setSalesRecord] = useState({
-        date: new Date().toISOString().split('T')[0], // 오늘 날짜 기본값
-        itemCode: '',
-        itemName: '',
-        quantity: 1,
-        price: 0,
-        cost: 0,
-        isPromotion: false,
-    });
-    const [recentSales, setRecentSales] = useState([]); // 최근 입력된 판매 내역
+    const [products, setProducts] = useState([]); // 품목 목록 상태
+    const [salesDate, setSalesDate] = useState(new Date().toISOString().split('T')[0]); // 판매 날짜
+    const [salesQuantities, setSalesQuantities] = useState({}); // 품목별 판매량
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setSalesRecord(prevRecord => ({
-            ...prevRecord,
-            [name]: type === 'checkbox' ? checked : value
+    // 품목 목록을 불러옵니다.
+    const fetchProducts = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch('/api/products/', {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setProducts(data);
+            // 초기 판매량 상태 설정
+            const initialQuantities = {};
+            data.forEach(p => {
+                initialQuantities[p.id] = 0; // 기본 판매량 0
+            });
+            setSalesQuantities(initialQuantities);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const handleQuantityChange = (productId, value) => {
+        setSalesQuantities(prev => ({
+            ...prev,
+            [productId]: Math.max(0, Number(value)) // 음수 방지
         }));
     };
 
@@ -29,50 +47,55 @@ function DailySalesInput() {
         setMessage('');
         setError('');
 
-        // 간단한 유효성 검사
-        if (!salesRecord.itemCode || !salesRecord.itemName || salesRecord.quantity <= 0 || salesRecord.price < 0 || salesRecord.cost < 0) {
-            setError('모든 필수 필드를 올바르게 입력해주세요 (수량, 가격, 원가는 0 이상).');
+        const salesRecordsToSave = [];
+        products.forEach(p => {
+            const quantity = salesQuantities[p.id];
+            if (quantity > 0) { // 판매량이 0보다 큰 품목만 저장
+                salesRecordsToSave.push({
+                    item: p.id, // 품목 ID
+                    date: salesDate,
+                    quantity: quantity,
+                    selling_price: p.selling_price, // 품목의 판매가 사용
+                    cost_price: p.cost_price,     // 품목의 원가 사용
+                    is_event_day: false, // 기본값으로 false 설정 (추후 UI 추가 가능)
+                });
+            }
+        });
+
+        if (salesRecordsToSave.length === 0) {
+            setError('저장할 판매 기록이 없습니다. 판매량을 입력해주세요.');
             return;
         }
 
         try {
-            // 데이터 전송: POST /api/sales/records/
+            const token = localStorage.getItem('accessToken');
             const response = await fetch('/api/sales/records/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${token}` // 인증 토큰
+                    'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(salesRecord),
+                body: JSON.stringify(salesRecordsToSave), // 배열 형태로 전송
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                // 백엔드에서 오는 다양한 에러 메시지를 처리
+                const errorMessage = Object.values(errorData).flat().join(' ');
+                throw new Error(errorMessage || `HTTP error! status: ${response.status}`);
             }
 
-            const newRecord = await response.json();
-            setMessage('판매 기록이 성공적으로 추가되었습니다!');
-            setRecentSales(prevSales => [newRecord, ...prevSales.slice(0, 4)]); // 최대 5개 유지
-            
-            // 폼 초기화 (날짜는 오늘 날짜로 유지)
-            setSalesRecord({
-                date: new Date().toISOString().split('T')[0],
-                itemCode: '',
-                itemName: '',
-                quantity: 1,
-                price: 0,
-                cost: 0,
-                isPromotion: false,
-            });
+            setMessage('판매 기록이 성공적으로 저장되었습니다!');
+            // 저장 후 판매량 초기화 및 품목 목록 새로고침
+            const resetQuantities = {};
+            products.forEach(p => { resetQuantities[p.id] = 0; });
+            setSalesQuantities(resetQuantities);
+            fetchProducts(); // 재고가 업데이트되었으므로 품목 목록을 다시 불러옵니다.
 
         } catch (err) {
-            setError(`판매 기록 추가 실패: ${err.message}`);
+            setError(`판매 기록 저장 실패: ${err.message}`);
         }
     };
-
-    // TODO: 품목코드/품목명 자동 완성 기능 구현 (백엔드 API 필요)
-    // 예: 품목코드 입력 시 품목명 자동 채우기, 품목명 입력 시 품목코드 제안
 
     return (
         <div className="data-management-section">
@@ -82,120 +105,65 @@ function DailySalesInput() {
 
             <form onSubmit={handleSubmit} className="data-management-form">
                 <div className="form-group">
-                    <label htmlFor="date">날짜:</label>
+                    <label htmlFor="salesDate">날짜:</label>
                     <input
                         type="date"
-                        id="date"
-                        name="date"
-                        value={salesRecord.date}
-                        onChange={handleChange}
+                        id="salesDate"
+                        name="salesDate"
+                        value={salesDate}
+                        onChange={(e) => setSalesDate(e.target.value)}
                         required
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="itemCode">품목 코드:</label>
-                    <input
-                        type="text"
-                        id="itemCode"
-                        name="itemCode"
-                        value={salesRecord.itemCode}
-                        onChange={handleChange}
-                        required
-                        placeholder="예: ABC001"
-                    />
+                
+                <div className="data-table-container">
+                    <h3>품목별 판매량 입력</h3>
+                    {products.length === 0 ? (
+                        <p>등록된 품목이 없습니다. 품목 관리에서 품목을 추가해주세요.</p>
+                    ) : (
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>품목코드</th>
+                                    <th>품목명</th>
+                                    <th>현재고</th>
+                                    <th>판매가</th>
+                                    <th>원가</th>
+                                    <th>판매량</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products.map(p => (
+                                    <tr key={p.id}>
+                                        <td>{p.item_code}</td>
+                                        <td>{p.name}</td>
+                                        <td>{p.current_stock}</td>
+                                        <td>{p.selling_price.toLocaleString()}</td>
+                                        <td>{p.cost_price.toLocaleString()}</td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={salesQuantities[p.id] || 0}
+                                                onChange={(e) => handleQuantityChange(p.id, e.target.value)}
+                                                style={{ width: '80px' }}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
-                <div className="form-group">
-                    <label htmlFor="itemName">품목명:</label>
-                    <input
-                        type="text"
-                        id="itemName"
-                        name="itemName"
-                        value={salesRecord.itemName}
-                        onChange={handleChange}
-                        required
-                        placeholder="예: 사과 (부사)"
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="quantity">판매량:</label>
-                    <input
-                        type="number"
-                        id="quantity"
-                        name="quantity"
-                        value={salesRecord.quantity}
-                        onChange={handleChange}
-                        min="1"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="price">판매가 (단가):</label>
-                    <input
-                        type="number"
-                        id="price"
-                        name="price"
-                        value={salesRecord.price}
-                        onChange={handleChange}
-                        min="0"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="cost">원가 (단가):</label>
-                    <input
-                        type="number"
-                        id="cost"
-                        name="cost"
-                        value={salesRecord.cost}
-                        onChange={handleChange}
-                        min="0"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="checkbox"
-                        id="isPromotion"
-                        name="isPromotion"
-                        checked={salesRecord.isPromotion}
-                        onChange={handleChange}
-                    />
-                    <label htmlFor="isPromotion">행사 여부</label>
-                </div>
-                <button type="submit" className="data-management-submit-button">판매 기록 추가</button>
+
+                <button type="submit" className="data-management-submit-button">판매 기록 저장</button>
             </form>
 
-            <div className="data-table-container">
+            {/* 최근 판매 내역은 SalesHistory 컴포넌트에서 관리하는 것이 더 적절합니다. */}
+            {/* <div className="data-table-container">
                 <h3>오늘/최근 판매 내역 요약</h3>
-                {recentSales.length === 0 ? (
-                    <p>최근 입력된 판매 내역이 없습니다.</p>
-                ) : (
-                    <table className="data-table">
-                        <thead>
-                            <tr>
-                                <th>날짜</th>
-                                <th>품목명</th>
-                                <th>수량</th>
-                                <th>판매가</th>
-                                <th>원가</th>
-                                <th>행사</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {recentSales.map((record, index) => (
-                                <tr key={index}> {/* 실제로는 record.id 사용 권장 */}
-                                    <td>{record.date}</td>
-                                    <td>{record.itemName}</td>
-                                    <td>{record.quantity}</td>
-                                    <td>{record.price.toLocaleString()}</td>
-                                    <td>{record.cost.toLocaleString()}</td>
-                                    <td>{record.isPromotion ? 'O' : 'X'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+                <p>최근 입력된 판매 내역이 없습니다.</p>
+            </div> */}
         </div>
     );
 }

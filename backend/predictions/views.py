@@ -6,45 +6,46 @@ import requests
 import os
 from datetime import date, timedelta
 
+def _get_ai_predictions(store, predict_date):
+    """AI 예측 서버로부터 품목별 판매량 예측을 가져오는 헬퍼 함수"""
+    products = Product.objects.filter(store=store)
+    if not products.exists():
+        return {}, {"detail": "해당 가게에 등록된 품목이 없습니다."}, status.HTTP_404_NOT_FOUND
+    
+    product_codes = [p.item_code for p in products]
+
+    ai_request_data = {
+        "predict_date": predict_date.strftime("%Y-%m-%d"),
+        "product_codes": product_codes,
+        "is_event_day": 1 # 임시로 1로 고정
+    }
+
+    ai_service_url = os.environ.get("AI_SERVICE_URL", "http://ai_service:8001/predict_sales/")
+    
+    print(f"DEBUG: AI Request Data: {ai_request_data}")
+    try:
+        response = requests.post(ai_service_url, json=ai_request_data, timeout=10)
+        response.raise_for_status()
+        ai_data = response.json()
+        print(f"DEBUG: AI Response Data: {ai_data}")
+
+    except requests.exceptions.RequestException as e:
+        return {}, {"detail": f"AI 예측 서버 연결에 실패했습니다: {e}"}, status.HTTP_503_SERVICE_UNAVAILABLE
+
+    predictions_map = {str(pred['product_code']): pred['predicted_quantity'] for pred in ai_data.get('predictions', [])}
+    product_map = {p.item_code: p for p in products}
+    return predictions_map, product_map, None
+
 class SalesForecastAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # 1. 현재 인증된 사용자의 가게(store)에 속한 모든 품목을 가져옵니다.
-        try:
-            store = request.user.store
-            products = Product.objects.filter(store=store)
-            if not products.exists():
-                return Response({"detail": "해당 가게에 등록된 품목이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
-            
-            product_codes = [p.item_code for p in products]
+        store = request.user.store
+        predict_date = date.today() + timedelta(days=1) # 내일 예측
 
-        except AttributeError:
-            return Response({"detail": "사용자에게 할당된 가게가 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # 2. AI 예측 서버에 보낼 데이터를 준비합니다.
-        # 예측은 내일 날짜를 기준으로 합니다.
-        predict_date = date.today() + timedelta(days=1)
-        ai_request_data = {
-            "predict_date": predict_date.strftime("%Y-%m-%d"),
-            "product_codes": product_codes
-        }
-
-        # 3. AI 서비스에 내부 API 요청을 보냅니다.
-        ai_service_url = os.environ.get("AI_SERVICE_URL", "http://ai_service:8001/predict_sales/")
-        
-        try:
-            response = requests.post(ai_service_url, json=ai_request_data, timeout=10)
-            response.raise_for_status()  # 2xx 응답이 아니면 예외 발생
-            ai_data = response.json()
-
-        except requests.exceptions.RequestException as e:
-            return Response({"detail": f"AI 예측 서버 연결에 실패했습니다: {e}"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
-        # 4. AI 예측 결과를 프론트엔드에 맞게 가공합니다.
-        # 품목 정보와 예측 결과를 결합합니다.
-        product_map = {p.item_code: p for p in products}
-        predictions_map = {pred['product_code']: pred['predicted_quantity'] for pred in ai_data.get('predictions', [])}
+        predictions_map, product_map, error_response = _get_ai_predictions(store, predict_date)
+        if error_response:
+            return Response(product_map, error_response)
 
         results = []
         for code, product in product_map.items():
@@ -63,28 +64,52 @@ class OrderRecommendationAPIView(APIView):
 
     def get(self, request):
         store = request.user.store
+        
+        # AI 예측 결과를 가져옵니다 (내일 예측)
+        predict_date = date.today() + timedelta(days=1) 
+        predictions_map, product_map, error_response = _get_ai_predictions(store, predict_date)
+        if error_response:
+            return Response(product_map, error_response)
+
         recommendations = []
-        products = Product.objects.filter(store=store)
-        
-        # AI 예측 결과를 가져오는 로직 (SalesForecastAPIView와 유사)
-        # 여기서는 간단히 SalesForecastAPIView의 로직을 재활용하거나,
-        # 별도의 함수로 분리하여 AI 예측 결과를 가져와 사용해야 합니다.
-        # 편의상 여기서는 더미 예측 데이터를 사용합니다.
-        
-        for product in products:
-            # 더미 예측 수량 (실제로는 AI 예측 결과 사용)
-            predicted_sales_next_7days = 50 # 예시
+        for code, product in product_map.items():
+            predicted_sales_tomorrow = predictions_map.get(code, 0) # 내일 예측 판매량
             
-            if product.current_stock < product.min_stock and predicted_sales_next_7days > 0:
-                recommended_quantity = product.min_stock + predicted_sales_next_7days - product.current_stock
+            # 예상 재고 소진일 계산
+            stock_out_estimate_date = None
+            if predicted_sales_tomorrow > 0: # 예측 판매량이 0보다 커야 소진일 계산 의미 있음
+                # 현재 재고가 예측 판매량으로 며칠 버틸 수 있는지 계산
+                days_until_stock_out = product.current_stock / predicted_sales_tomorrow
+                stock_out_estimate_date = (date.today() + timedelta(days=days_until_stock_out)).strftime("%Y-%m-%d")
+            elif product.current_stock <= 0: # 재고가 이미 0이거나 음수이면 오늘 소진된 것으로 간주
+                stock_out_estimate_date = date.today().strftime("%Y-%m-%d")
+
+            # 추천 발주량 계산
+            # 리드 타임 동안의 예상 수요 + 안전 재고 - 현재 재고
+            # AI가 1일 예측만 하므로, 리드 타임 동안의 수요는 '1일 예측 * 리드 타임'으로 단순화
+            predicted_demand_during_lead_time = predicted_sales_tomorrow * product.lead_time
+            required_stock_for_period = predicted_demand_during_lead_time + product.safety_stock
+            recommended_quantity = max(0, required_stock_for_period - product.current_stock)
+
+            # 권장 발주 시점 계산
+            order_by_date = None
+            if stock_out_estimate_date: # 예상 소진일이 계산되었다면
+                # 예상 소진일 - 리드 타임 = 발주해야 할 날짜
+                order_by_date_obj = date.fromisoformat(stock_out_estimate_date) - timedelta(days=product.lead_time)
+                # 발주 시점이 오늘 이전이면 오늘로 설정 (과거로 발주할 수 없으므로)
+                order_by_date = max(date.today(), order_by_date_obj).strftime("%Y-%m-%d")
+            
+            # 재고 부족 또는 추천 발주량이 0보다 큰 경우에만 추천
+            if product.current_stock < product.min_stock or recommended_quantity > 0:
                 recommendations.append({
                     "item_code": product.item_code,
                     "item_name": product.name,
                     "current_stock": product.current_stock,
-                    "predicted_sales_next_7days": predicted_sales_next_7days,
-                    "recommended_order_quantity": recommended_quantity,
-                    "order_by_date": (date.today() + timedelta(days=product.lead_time)).strftime("%Y-%m-%d"),
-                    "reason": "재고 부족 및 예측 수요 발생"
+                    "predicted_sales_next_day": predicted_sales_tomorrow,
+                    "stock_out_estimate_date": stock_out_estimate_date,
+                    "recommended_order_quantity": round(recommended_quantity), # 정수로 반올림
+                    "order_by_date": order_by_date,
+                    "reason": "재고 부족 또는 예측 수요 발생"
                 })
         
         return Response(recommendations, status=status.HTTP_200_OK)

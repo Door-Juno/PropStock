@@ -1,23 +1,15 @@
 .sales-trend-report .filters {
   margin-bottom: 20px;
-}
-
-.sales-trend-report .report-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.sales-trend-report .report-item {
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 요소 사이의 간격 */
 }
 
 .sales-trend-report .chart-container {
-  height: 300px;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
   background-color: #f8f9fa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 400px; /* 차트 높이를 적절히 조절 */
+  position: relative; /* 내부 요소의 상대 위치 기준 */
 }

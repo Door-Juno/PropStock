@@ -10,9 +10,9 @@ function CriticalStockAlertList() {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                // 실제 API 엔드포인트: /api/inventory/status/?alert_type=low_stock,expired_soon
+                // 실제 API 엔드포인트: /api/inventory/status/?alert_type=low_stock
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('/api/inventory/status/?alert_type=low_stock,expired_soon', {
+                const response = await fetch('/api/inventory/status/?alert_type=low_stock', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
@@ -21,7 +21,8 @@ function CriticalStockAlertList() {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                setAlerts(data);
+                // 유통기한 알림을 제외하고 재고 부족 알림만 필터링
+                setAlerts(data.filter(item => item.status === '부족'));
             } catch (err) {
                 setError(err);
             } finally {
@@ -37,15 +38,14 @@ function CriticalStockAlertList() {
 
     return (
         <div className="critical-stock-alert-list">
-            <h2>재고/유통기한 임박 알림</h2>
+            <h2>재고 부족 알림</h2>
             {alerts.length === 0 ? (
-                <p>현재 특별한 알림이 없습니다.</p>
+                <p>현재 재고 부족 알림이 없습니다.</p>
             ) : (
                 <ul>
                     {alerts.map((item) => (
-                        <li key={item.id} className={`alert-item ${item.alert_type === 'low_stock' ? 'low-stock' : 'expired-soon'}`}>
-                            <strong>{item.name}</strong> -
-                            {item.alert_type === 'low_stock' ? ` 재고 부족 (현재: ${item.current_stock}개)` : ` 유통기한 임박 (${item.expiry_date}까지)`}
+                        <li key={item.id} className="alert-item low-stock">
+                            <strong>{item.name}</strong>: 재고 부족 (현재: {item.current_stock}개)
                         </li>
                     ))}
                 </ul>

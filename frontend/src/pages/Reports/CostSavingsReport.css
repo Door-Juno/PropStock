@@ -1,29 +1,29 @@
-.cost-savings-report .report-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.cost-savings-report .report-item {
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 8px;
+.cost-savings-report h2 {
+  margin-bottom: 20px;
 }
 
 .cost-savings-report .summary-card {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
+  background-color: #f8f9fa;
+}
+
+.cost-savings-report .summary-card h3 {
+  margin-top: 0;
+  color: #555;
 }
 
 .cost-savings-report .summary-card .amount {
-  font-size: 2em;
+  font-size: 2.5em;
   font-weight: bold;
-  color: #3498db;
+  color: #28a745; /* 긍정적인 절감 효과를 나타내는 색상 */
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.cost-savings-report .chart-container {
-  height: 300px;
-  background-color: #f8f9fa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.cost-savings-report .summary-card .message {
+  font-size: 0.9em;
+  color: #777;
 }

@@ -39,21 +39,20 @@ function KeyMetricsCards() {
 
     return (
         <div className="key-metrics-cards">
-            <h2>핵심 지표</h2>
+            <h2>최근 30일 요약</h2>
             <div className="metrics-grid">
                 <div className="metric-card">
-                    <h3>월간 총 수입</h3>
-                    <p>{summaryData.monthlyRevenue ? `${summaryData.monthlyRevenue.toLocaleString()}원` : 'N/A'}</p>
+                    <h3>총 매출</h3>
+                    <p>{summaryData.total_revenue ? `${summaryData.total_revenue.toLocaleString()}원` : '0원'}</p>
                 </div>
                 <div className="metric-card">
-                    <h3>주간 판매량</h3>
-                    <p>{summaryData.weeklySalesCount ? `${summaryData.weeklySalesCount.toLocaleString()}개` : 'N/A'}</p>
+                    <h3>총 순이익</h3>
+                    <p>{summaryData.total_profit ? `${summaryData.total_profit.toLocaleString()}원` : '0원'}</p>
                 </div>
                 <div className="metric-card">
-                    <h3>현재 재고 가치</h3>
-                    <p>{summaryData.currentStockValue ? `${summaryData.currentStockValue.toLocaleString()}원` : 'N/A'}</p>
+                    <h3>총 판매량</h3>
+                    <p>{summaryData.total_quantity ? `${summaryData.total_quantity.toLocaleString()}개` : '0개'}</p>
                 </div>
-                {/* 필요에 따라 다른 지표 추가 */}
             </div>
         </div>
     );

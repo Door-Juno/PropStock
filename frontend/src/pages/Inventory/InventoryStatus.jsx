@@ -74,13 +74,18 @@ function InventoryStatus() {
         }
     };
 
-    const getStatusClassName = (status) => {
-        if (!status) return '';
-        switch (status.toLowerCase()) {
-            case '부족': return 'status-low';
-            case '과잉': return 'status-high';
-            default: return 'status-normal';
+    const getStatus = (item) => {
+        if (item.current_stock < item.min_stock) {
+            return { text: '부족', className: 'status-low' };
         }
+        if (item.current_stock < item.safety_stock) {
+            return { text: '주의', className: 'status-warning' };
+        }
+        // 과잉 상태에 대한 정의가 필요하다면 여기에 추가할 수 있습니다.
+        // 예: if (item.current_stock > item.safety_stock * 2) {
+        //     return { text: '과잉', className: 'status-high' };
+        // }
+        return { text: '정상', className: 'status-normal' };
     };
 
     return (
@@ -93,23 +98,28 @@ function InventoryStatus() {
                     <tr>
                         <th>품목명</th>
                         <th>현재고</th>
+                        <th>최소/안전 재고</th>
                         <th>상태</th>
                         <th>조정</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {inventory.map((item) => (
-                        <tr key={item.item_code} className={getStatusClassName(item.status)}>
-                            <td>{item.name}</td>
-                            <td>{item.current_stock}</td>
-                            <td>{item.status}</td>
-                            <td>
-                                <button onClick={() => handleOpenModal(item)} className="button-adjust">
-                                    재고 조정
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+                    {inventory.map((item) => {
+                        const status = getStatus(item);
+                        return (
+                            <tr key={item.item_code} className={status.className}>
+                                <td>{item.name}</td>
+                                <td>{item.current_stock}</td>
+                                <td>{`${item.min_stock} / ${item.safety_stock}`}</td>
+                                <td>{status.text}</td>
+                                <td>
+                                    <button onClick={() => handleOpenModal(item)} className="button-adjust">
+                                        재고 조정
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
 
