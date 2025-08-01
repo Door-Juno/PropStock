@@ -11,7 +11,12 @@ function CriticalStockAlertList() {
         const fetchAlerts = async () => {
             try {
                 // 실제 API 엔드포인트: /api/inventory/status/?alert_type=low_stock,expired_soon
-                const response = await fetch('/api/inventory/status/?alert_type=low_stock,expired_soon');
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch('/api/inventory/status/?alert_type=low_stock,expired_soon', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

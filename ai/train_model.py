@@ -12,15 +12,15 @@ MODEL_NAME = 'prophet_model.pkl'
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 print(f"'{DATA_PATH}'에서 데이터 로드 중 ...")
-df = pd.read_csv(DATA_PATH)
+df = pd.read_csv(DATA_PATH, encoding='cp949')
 
 # Prophet 모델을 위한 컬럼명 변경
 df['ds'] = pd.to_datetime(df['날짜'])
 df['y'] = df['판매량']
 
 # 요일을 위한 준비
-df['공휴일'] = df['공휴일'].astype(int)
-df['행사여부'] = df['행사여부'].astype(int)
+df['공휴일'] = df['공휴일'].fillna(0).astype(int)
+df['행사 여부'] = df['행사 여부'].fillna(0).astype(int)
 
 # 요일 피쳐 생성
 day_mapping = {'월':0 , '화':1, '수': 2, '목': 3, '금': 4, '토': 5, '일': 6}
@@ -53,7 +53,7 @@ for product_code in unique_products :
     )
 
     m.add_regressor('공휴일')
-    m.add_regressor('행사여부')
+    m.add_regressor('행사 여부')
     m.add_regressor('요일_숫자')
 
     m.fit(product_df) # 학습 시작

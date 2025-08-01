@@ -36,7 +36,12 @@ function RecentSalesTrendChart() {
                 const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 최근 30일
 
                 // 실제 API 엔드포인트: /api/reports/sales-trend/?period=daily&start_date=...&end_date=...
-                const response = await fetch(`/api/reports/sales-trend/?period=daily&start_date=${startDate}&end_date=${endDate}`);
+                const token = localStorage.getItem('accessToken');
+                const response = await fetch(`/api/reports/sales-trend/?period=daily&start_date=${startDate}&end_date=${endDate}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
