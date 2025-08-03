@@ -1,5 +1,5 @@
-// src/pages/DataManagement/SalesDataUpload.jsx
 import React, { useState, useRef } from 'react';
+import axios from 'axios';
 import './DataManagementSection.css'; // 공통 스타일
 
 function SalesDataUpload() {
@@ -56,20 +56,32 @@ function SalesDataUpload() {
         formData.append('file', selectedFile);
 
         try {
-            // 데이터 전송: POST /api/sales/bulk-upload/
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                setError('로그인이 필요합니다.');
+                setMessage('');
+                return;
+            }
+
             const response = await fetch('/api/sales/bulk-upload/', {
                 method: 'POST',
-                // headers: { 'Authorization': `Bearer ${token}` }, // 인증 토큰
+                headers: { 'Authorization': `Bearer ${token}` }, // 인증 토큰 추가
                 body: formData,
             });
 
             if (!response.ok) {
-                const errorText = await response.text(); // 오류 메시지를 텍스트로 받기
-                throw new Error(`파일 업로드 실패: ${response.status} - ${errorText}`);
+                const errorData = await response.json(); // JSON 형식의 에러 응답 처리
+                throw new Error(errorData.message || `파일 업로드 실패: ${response.status}`);
             }
 
             const result = await response.json();
-            setUploadResult(result);
+            setUploadResult({
+                total_rows: result.total_rows,
+                success_rows: result.processed_rows, // 백엔드의 processed_rows를 success_rows로 매핑
+                failed_rows: result.failed_rows,
+                errors: result.errors,
+                message: result.message || '파일 업로드가 완료되었습니다.'
+            });
             setMessage('파일 업로드가 완료되었습니다.');
             setSelectedFile(null); // 업로드 후 파일 초기화
 
@@ -79,11 +91,40 @@ function SalesDataUpload() {
         }
     };
 
-    const handleDownloadTemplate = () => {
-        // 실제로는 백엔드에서 제공하는 템플릿 다운로드 API를 호출합니다.
-        // 예: window.open('/api/sales/template/download/');
-        alert('판매 데이터 업로드 템플릿을 다운로드합니다. (실제 기능 구현 필요)');
-        // 임시로 링크를 제공하거나 로컬 파일 다운로드 로직을 여기에 추가할 수 있습니다.
+    const handleDownloadTemplate = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                setError('템플릿 다운로드를 위해 로그인이 필요합니다.');
+                return;
+            }
+
+            setMessage('템플릿 다운로드 중...');
+            setError('');
+
+            const response = await axios.get('/api/sales/template/download/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                responseType: 'blob', // 파일을 바이너리 데이터로 받기 위해 blob 타입으로 설정
+            });
+
+            // 파일 다운로드 트리거
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'sales_upload_template.xlsx'); // 다운로드될 파일명 설정
+            document.body.appendChild(link);
+            link.click();
+            link.remove(); // 링크 제거
+            window.URL.revokeObjectURL(url); // 임시 URL 해제
+
+            setMessage('템플릿 다운로드가 완료되었습니다.');
+
+        } catch (err) {
+            setError(`템플릿 다운로드 실패: ${err.response && err.response.status === 401 ? '인증 실패' : err.message}`);
+            console.error('템플릿 다운로드 오류:', err.response ? err.response.data : err);
+        }
     };
 
     return (

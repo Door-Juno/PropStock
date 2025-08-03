@@ -20,7 +20,9 @@ const InventoryEfficiencyReport = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setInventoryData(data);
+        // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
+        const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
+        setInventoryData(sortedData);
       } catch (err) {
         setError(err.message);
       } finally {

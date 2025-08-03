@@ -21,6 +21,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000 # Django 개발 서버 실행 명령어
     volumes:
       - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app에 마운트 (코드 변경 시 즉시 반영)
+      - ai_data_volume:/app/ai/data # AI 데이터 공유 볼륨 마운트
     ports:
       - "${DJANGO_PORT:-8000}:8000" # 로컬 8000 포트와 컨테이너 8000 포트 연결 (기본값 8000)
     environment: # Django settings.py에 사용될 환경 변수
@@ -53,8 +54,8 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1 # FastAPI 실행 명령어
     volumes:
       - ./ai:/app
+      - ai_data_volume:/app/ai/data # AI 데이터 공유 볼륨 마운트
       - /app/models
-      - /app/data
     ports:
       - "${AI_PORT:-8001}:8001" # 로컬 8001 포트와 컨테이너 8001 포트 연결 (기본값 8001)
     environment: # AI 서비스에 필요한 환경 변수
@@ -65,3 +66,4 @@ services:
 # 볼륨 정의 (데이터 영속성 유지를 위해)
 volumes:
   pgdata: # PostgreSQL 데이터 저장용 볼륨
+  ai_data_volume: # AI 데이터 공유용 볼륨

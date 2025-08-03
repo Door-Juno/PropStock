@@ -4,14 +4,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from sales.models import Sales
-from inventory.models import InventoryTransaction # InventoryTransaction 모델 임포트
-from products.models import Product # Product 모델 임포트
+from inventory.models import InventoryTransaction
+from products.models import Product
 from django.db.models import Sum, F, ExpressionWrapper, fields, Avg
 from django.db.models.functions import Trunc
 from datetime import datetime, timedelta
+from .serializers import SummaryReportSerializer, SalesTrendSerializer, InventoryTurnoverSerializer, CostSavingsSerializer
 
 class SummaryReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SummaryReportSerializer
 
     def get(self, request):
         store = request.user.store
@@ -34,6 +36,7 @@ class SummaryReportAPIView(APIView):
 
 class SalesTrendAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SalesTrendSerializer
 
     def get(self, request):
         store = request.user.store
@@ -49,7 +52,9 @@ class SalesTrendAPIView(APIView):
             return Response({"error": "Invalid date format. Please use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
         
         trunc_field = Trunc('date', agg_unit, output_field=fields.DateField())
-        sales_trend = Sales.objects.filter(store=store, date__range=[start_date, end_date])            .annotate(period=trunc_field).values('period')            .annotate(total_quantity=Sum('quantity'), total_revenue=Sum(F('quantity') * F('selling_price'))).order_by('period')
+        sales_trend = Sales.objects.filter(store=store, date__range=[start_date, end_date])\
+            .annotate(period=trunc_field).values('period')\
+            .annotate(total_quantity=Sum('quantity'), total_revenue=Sum(F('quantity') * F('selling_price'))).order_by('period')
         
         trend_data = [{
             'date': item['period'].strftime('%Y-%m-%d'),
@@ -60,16 +65,15 @@ class SalesTrendAPIView(APIView):
 
 class InventoryTurnoverAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = InventoryTurnoverSerializer
 
     def get(self, request):
         store = request.user.store
         products = Product.objects.filter(store=store)
         report = []
         for product in products:
-            # 단순화를 위해 현재 재고를 평균 재고로 가정
-            # 더 정확한 계산을 위해서는 특정 기간의 평균 재고를 계산해야 함
             total_sales = Sales.objects.filter(item=product).aggregate(total=Sum('quantity'))['total'] or 0
-            avg_stock = product.current_stock # 단순화된 가정
+            avg_stock = product.current_stock
             turnover_rate = total_sales / avg_stock if avg_stock > 0 else 0
             report.append({
                 'item_code': product.item_code,
@@ -81,11 +85,10 @@ class InventoryTurnoverAPIView(APIView):
 
 class CostSavingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = CostSavingsSerializer
 
     def get(self, request):
         store = request.user.store
-        # 재고 조정 내역 중 '폐기'(waste) 또는 '손실'(loss) 등 부정적인 조정을 집계
-        # 여기서는 notes 필드에 '폐기'가 포함된 경우로 가정
         waste_transactions = InventoryTransaction.objects.filter(
             product__store=store, 
             type='out', 

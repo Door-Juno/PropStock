@@ -20,7 +20,9 @@ function InventoryStatus() {
                 throw new Error('재고 현황을 불러오는 데 실패했습니다.');
             }
             const data = await response.json();
-            setInventory(data);
+            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
+            const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
+            setInventory(sortedData);
         } catch (err) {
             setError(err.message);
         }

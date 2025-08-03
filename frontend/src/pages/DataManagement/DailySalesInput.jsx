@@ -5,6 +5,7 @@ function DailySalesInput() {
     const [products, setProducts] = useState([]); // 품목 목록 상태
     const [salesDate, setSalesDate] = useState(new Date().toISOString().split('T')[0]); // 판매 날짜
     const [salesQuantities, setSalesQuantities] = useState({}); // 품목별 판매량
+    const [salesEventDays, setSalesEventDays] = useState({}); // 품목별 행사 여부
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
@@ -19,13 +20,18 @@ function DailySalesInput() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            setProducts(data);
+            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
+            const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
+            setProducts(sortedData);
             // 초기 판매량 상태 설정
             const initialQuantities = {};
-            data.forEach(p => {
+            const initialEventDays = {};
+            sortedData.forEach(p => {
                 initialQuantities[p.id] = 0; // 기본 판매량 0
+                initialEventDays[p.id] = false; // 기본 행사 여부 false
             });
             setSalesQuantities(initialQuantities);
+            setSalesEventDays(initialEventDays);
         } catch (err) {
             setError(err.message);
         }
@@ -39,6 +45,13 @@ function DailySalesInput() {
         setSalesQuantities(prev => ({
             ...prev,
             [productId]: Math.max(0, Number(value)) // 음수 방지
+        }));
+    };
+
+    const handleEventDayChange = (productId, checked) => {
+        setSalesEventDays(prev => ({
+            ...prev,
+            [productId]: checked
         }));
     };
 
@@ -57,7 +70,7 @@ function DailySalesInput() {
                     quantity: quantity,
                     selling_price: p.selling_price, // 품목의 판매가 사용
                     cost_price: p.cost_price,     // 품목의 원가 사용
-                    is_event_day: false, // 기본값으로 false 설정 (추후 UI 추가 가능)
+                    is_event_day: salesEventDays[p.id], // 품목별 행사 여부 사용
                 });
             }
         });
@@ -86,10 +99,15 @@ function DailySalesInput() {
             }
 
             setMessage('판매 기록이 성공적으로 저장되었습니다!');
-            // 저장 후 판매량 초기화 및 품목 목록 새로고침
+            // 저장 후 판매량 및 행사 여부 초기화, 품목 목록 새로고침
             const resetQuantities = {};
-            products.forEach(p => { resetQuantities[p.id] = 0; });
+            const resetEventDays = {};
+            products.forEach(p => { 
+                resetQuantities[p.id] = 0; 
+                resetEventDays[p.id] = false;
+            });
             setSalesQuantities(resetQuantities);
+            setSalesEventDays(resetEventDays);
             fetchProducts(); // 재고가 업데이트되었으므로 품목 목록을 다시 불러옵니다.
 
         } catch (err) {
@@ -130,6 +148,7 @@ function DailySalesInput() {
                                     <th>판매가</th>
                                     <th>원가</th>
                                     <th>판매량</th>
+                                    <th>행사 여부</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -147,6 +166,13 @@ function DailySalesInput() {
                                                 value={salesQuantities[p.id] || 0}
                                                 onChange={(e) => handleQuantityChange(p.id, e.target.value)}
                                                 style={{ width: '80px' }}
+                                            />
+                                        </td>
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                checked={salesEventDays[p.id] || false}
+                                                onChange={(e) => handleEventDayChange(p.id, e.target.checked)}
                                             />
                                         </td>
                                     </tr>
