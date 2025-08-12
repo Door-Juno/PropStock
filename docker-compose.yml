@@ -1,7 +1,4 @@
 # my_fullstack_app/docker-compose.yml
-
-version: '3.8' # Docker Compose 파일 형식 버전
-
 services:
   db: # PostgreSQL 데이터베이스 서비스
     image: postgres:13 # PostgreSQL 이미지 버전 (원하는 버전 선택)
@@ -24,6 +21,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000 # Django 개발 서버 실행 명령어
     volumes:
       - ./backend:/app # 로컬 backend 폴더를 컨테이너 /app에 마운트 (코드 변경 시 즉시 반영)
+      - ai_data_volume:/app/ai/data # AI 데이터 공유 볼륨 마운트
     ports:
       - "${DJANGO_PORT:-8000}:8000" # 로컬 8000 포트와 컨테이너 8000 포트 연결 (기본값 8000)
     environment: # Django settings.py에 사용될 환경 변수
@@ -32,7 +30,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST=db # DB 서비스 이름으로 호스트 지정 (Docker Compose 네트워크 내부에서)
       - POSTGRES_PORT=5432
-      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://ai_service:8001/predict_inventory/} # AI 서비스 URL (기본값 설정)
     depends_on: # db 서비스와 ai_service가 완전히 시작된 후에 backend 서비스 시작
       db:
         condition: service_healthy # DB 서비스가 healthcheck를 통과해야 시작
@@ -56,8 +53,9 @@ services:
       dockerfile: Dockerfile # AI 서비스 Dockerfile 이름
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1 # FastAPI 실행 명령어
     volumes:
-      - ./ai/app:/app # 로컬 ai/app 폴더를 컨테이너 /app에 마운트
-      - ./ai/app/models:/app/models # 학습된 모델 파일을 마운트
+      - ./ai:/app
+      - ai_data_volume:/app/ai/data # AI 데이터 공유 볼륨 마운트
+      - /app/models
     ports:
       - "${AI_PORT:-8001}:8001" # 로컬 8001 포트와 컨테이너 8001 포트 연결 (기본값 8001)
     environment: # AI 서비스에 필요한 환경 변수
@@ -68,3 +66,4 @@ services:
 # 볼륨 정의 (데이터 영속성 유지를 위해)
 volumes:
   pgdata: # PostgreSQL 데이터 저장용 볼륨
+  ai_data_volume: # AI 데이터 공유용 볼륨

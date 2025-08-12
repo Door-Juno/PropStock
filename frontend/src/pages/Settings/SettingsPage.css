@@ -1,0 +1,145 @@
+/* src/pages/Settings/SettingsPage.css */
+
+.settings-page-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.settings-page-title {
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.settings-content-wrapper {
+    display: flex;
+    gap: 30px; /* 사이드바와 메인 콘텐츠 사이 간격 */
+}
+
+.settings-sidebar {
+    flex: 0 0 200px; /* 고정 너비 사이드바 */
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.settings-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-sidebar li {
+    margin-bottom: 5px;
+}
+
+.settings-sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    border-left: 3px solid transparent; /* 활성 링크 표시용 */
+}
+
+.settings-sidebar a:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.settings-sidebar a.active-link {
+    background-color: #e6f7ff; /* 활성 링크 배경색 */
+    color: #007bff; /* 활성 링크 텍스트 색상 */
+    border-left-color: #007bff; /* 활성 링크 왼쪽 테두리 */
+    font-weight: bold;
+}
+
+.settings-main-area {
+    flex-grow: 1; /* 남은 공간 모두 차지 */
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.logout-button-container {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.logout-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+    box-sizing: border-box; /* 패딩 포함 너비 */
+}
+
+.logout-button:hover {
+    background-color: #c82333;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .settings-content-wrapper {
+        flex-direction: column; /* 작은 화면에서는 세로로 쌓기 */
+    }
+
+    .settings-sidebar {
+        flex: none;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .settings-sidebar ul {
+        display: flex; /* 가로 스크롤 가능한 탭처럼 */
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: space-around; /* 탭 균등 분배 */
+        border-bottom: 1px solid #eee;
+    }
+
+    .settings-sidebar li {
+        margin-bottom: 0;
+        flex-shrink: 0; /* 탭이 줄어들지 않도록 */
+    }
+
+    .settings-sidebar a {
+        padding: 10px 15px;
+        border-left: none; /* 모바일에서는 왼쪽 테두리 제거 */
+        border-bottom: 3px solid transparent; /* 아래 테두리 사용 */
+        text-align: center;
+    }
+
+    .settings-sidebar a.active-link {
+        border-left-color: transparent;
+        border-bottom-color: #007bff;
+    }
+
+    .logout-button-container {
+        border-top: none; /* 모바일에서는 구분선 제거 */
+        margin-top: 0;
+        padding-top: 0;
+        text-align: left;
+    }
+
+    .logout-button {
+        width: auto; /* 버튼 너비 자동 */
+        margin-left: 20px; /* 여백 추가 */
+    }
+}

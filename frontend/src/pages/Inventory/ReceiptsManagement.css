@@ -1,0 +1,111 @@
+/* src/pages/Inventory/ReceiptsManagement.css */
+
+.receipts-management {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.receipts-management h2 {
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.receiving-form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.receiving-form h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.receiving-form form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: center;
+}
+
+.receiving-form input,
+.receiving-form select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.2s;
+}
+
+.receiving-form input:focus,
+.receiving-form select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.receiving-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    grid-column: 1 / -1; /* 버튼이 전체 너비를 차지하도록 설정 */
+}
+
+.receiving-form button:hover {
+    background-color: #0056b3;
+}
+
+.receipt-history {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.receipt-history h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.receipt-history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.receipt-history th,
+.receipt-history td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.receipt-history th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.receipt-history tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.receipt-history tbody tr:hover {
+    background-color: #f1f1f1;
+}

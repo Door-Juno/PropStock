@@ -1,0 +1,71 @@
+/* Dashboard.css */
+
+/* 전체 페이지 레이아웃 */
+.dashboard-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f0f2f5; /* 전반적인 배경색 */
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+/* 헤더 스타일 */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.dashboard-header p {
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+/* 메인 콘텐츠 영역 */
+.dashboard-main-content {
+    max-width: 1200px;
+    margin: 0 auto; /* 중앙 정렬 */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 섹션 간 간격 */
+}
+
+/* 각 섹션의 공통 스타일 */
+.dashboard-section {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+/* 알림 및 발주 추천 그리드 레이아웃 */
+.dashboard-alerts-recommendations-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* 모바일 우선: 1열 */
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .dashboard-alerts-recommendations-grid {
+        grid-template-columns: 1fr 1fr; /* 태블릿/데스크톱: 2열 */
+    }
+}
+
+/* 푸터 스타일 */
+.dashboard-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: #6c757d;
+    font-size: 0.9em;
+}
