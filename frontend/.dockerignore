@@ -1,0 +1,12 @@
+    # 로컬 node_modules 폴더를 Docker 이미지 빌드 시 복사하지 않도록 설정
+    node_modules
+    
+    # npm 디버그 로그 파일 무시
+    npm-debug.log
+    
+    # 빌드 결과물 폴더 무시 (있는 경우)
+    build
+    
+    # .env 파일 무시 (보안을 위해)
+    .env
+    
