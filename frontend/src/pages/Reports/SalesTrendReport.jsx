@@ -120,7 +120,7 @@ const SalesTrendReport = () => {
                     <option value="week">주별</option>
                     <option value="month">월별</option>
                 </select>
-                <button onClick={handleSearch} disabled={loading}>
+                <button onClick={handleSearch} disabled={loading} className="search-button">
                     {loading ? '조회 중...' : '조회'}
                 </button>
             </div>

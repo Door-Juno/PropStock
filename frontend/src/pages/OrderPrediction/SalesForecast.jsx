@@ -106,15 +106,18 @@ function SalesForecast() {
             <p>내일의 품목별 예상 판매량을 예측합니다. 버튼을 클릭하여 AI 예측을 실행하세요.</p>
             
             <div className="forecast-actions">
-                <label htmlFor="predictDate">예측 날짜:</label>
-                <input 
-                    type="date" 
-                    id="predictDate" 
-                    value={predictDate} 
-                    onChange={(e) => setPredictDate(e.target.value)} 
-                />
-                <button onClick={handleFetchForecast} disabled={isLoading || !storeId || allProductCodes.length === 0}>
-                    {isLoading ? '예측 중...' : '내일 판매량 예측 실행'}
+                <div className="form-group">
+                    <label htmlFor="predictDate">예측 날짜:</label>
+                    <input 
+                        type="date" 
+                        id="predictDate" 
+                        value={predictDate} 
+                        onChange={(e) => setPredictDate(e.target.value)} 
+                        className="date-input"
+                    />
+                </div>
+                <button onClick={handleFetchForecast} disabled={isLoading || !storeId || allProductCodes.length === 0} className="action-button">
+                    {isLoading ? '예측 중...' : '판매량 예측 실행'}
                 </button>
             </div>
 

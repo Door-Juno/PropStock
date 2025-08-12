@@ -1,69 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import './InventoryEfficiencyReport.css';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import axios from 'axios'; // Added axios import
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const InventoryEfficiencyReport = () => {
-  const [inventoryData, setInventoryData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [inventoryTurnoverData, setInventoryTurnoverData] = useState({});
+  const [wasteAnalysisData, setWasteAnalysisData] = useState({});
+  const [loading, setLoading] = useState(true); // Added loading state
+  const [error, setError] = useState(null); // Added error state
 
   useEffect(() => {
-    const fetchInventoryData = async () => {
+    const fetchReportData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const token = localStorage.getItem('accessToken');
-        const response = await fetch('/api/reports/inventory-turnover/', {
+        // Fetch Inventory Turnover Data
+        const turnoverResponse = await axios.get('/api/reports/inventory-turnover/', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         });
+        const turnoverLabels = turnoverResponse.data.map(item => item.item_name);
+        const turnoverRates = turnoverResponse.data.map(item => item.turnover_rate);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
-        const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
-        setInventoryData(sortedData);
+        setInventoryTurnoverData({
+          labels: turnoverLabels,
+          datasets: [
+            {
+              label: '재고 회전율',
+              data: turnoverRates,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            },
+          ],
+        });
+
+        // Fetch Cost Savings Data (Waste Analysis)
+        const costSavingsResponse = await axios.get('/api/reports/cost-savings/', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        // The backend currently returns total_waste_cost, not per item. Adjusting frontend to display total.
+        setWasteAnalysisData({
+          labels: ['총 폐기 비용'], // Label for total waste cost
+          datasets: [
+            {
+              label: '폐기 비용 (원)',
+              data: [costSavingsResponse.data.total_waste_cost],
+              backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            },
+          ],
+        });
+
       } catch (err) {
-        setError(err.message);
+        setError('데이터를 불러오는 데 실패했습니다.');
+        console.error('Error fetching inventory efficiency report:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInventoryData();
-  }, []);
+    fetchReportData();
+  }, []); // Empty dependency array means this runs once on mount
 
-  if (loading) return <div className="inventory-efficiency-report">데이터 로딩 중...</div>;
-  if (error) return <div className="inventory-efficiency-report error">데이터 로드 실패: {error}</div>;
+  if (loading) {
+    return <div className="inventory-efficiency-report-container">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="inventory-efficiency-report-container" style={{ color: 'red' }}>오류: {error}</div>;
+  }
 
   return (
-    <div className="inventory-efficiency-report">
+    <div className="inventory-efficiency-report-container">
       <h2>재고 효율성 분석</h2>
-      <h3>품목별 재고 회전율</h3>
-      {inventoryData.length === 0 ? (
-        <p>표시할 재고 회전율 데이터가 없습니다.</p>
-      ) : (
-        <table className="report-table">
-          <thead>
-            <tr>
-              <th>품목코드</th>
-              <th>품목명</th>
-              <th>재고 회전율</th>
-              <th>평균 재고 보유일</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventoryData.map((item) => (
-              <tr key={item.item_code}>
-                <td>{item.item_code}</td>
-                <td>{item.item_name}</td>
-                <td>{item.turnover_rate}</td>
-                <td>{item.average_days_in_stock}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+
+      <div className="chart-section">
+        <h3>품목별 재고 회전율</h3>
+        {inventoryTurnoverData.labels && <Bar data={inventoryTurnoverData} />}
+      </div>
+
+      <div className="chart-section">
+        <h3>총 폐기 비용</h3>
+        {wasteAnalysisData.labels && <Bar data={wasteAnalysisData} />}
+        <p>{wasteAnalysisData.datasets && wasteAnalysisData.datasets[0] && wasteAnalysisData.datasets[0].data ? `총 폐기 비용: ${wasteAnalysisData.datasets[0].data[0].toLocaleString()}원` : ''}</p>
+      </div>
     </div>
   );
 };

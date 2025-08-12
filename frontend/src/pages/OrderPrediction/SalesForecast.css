@@ -22,3 +22,57 @@
 .forecast-table th {
   background-color: #f2f2f2;
 }
+
+/* Styles for forecast actions section */
+.forecast-actions {
+  display: flex;
+  align-items: flex-end; /* Align items to the bottom */
+  gap: 15px; /* Space between items */
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+}
+
+.forecast-actions .form-group {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow it to take available space */
+}
+
+.forecast-actions label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+.forecast-actions .date-input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1em;
+  box-sizing: border-box;
+  max-width: 200px; /* Limit width for date input */
+}
+
+.forecast-actions .action-button {
+  background-color: #007bff; /* Primary blue color */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.forecast-actions .action-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.forecast-actions .action-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

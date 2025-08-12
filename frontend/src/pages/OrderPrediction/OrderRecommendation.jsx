@@ -69,7 +69,7 @@ const OrderRecommendation = () => {
               <th>예상 소진일</th>
               <th>추천 발주량</th>
               <th>권장 발주 시점</th>
-              <th>작업</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -81,9 +81,7 @@ const OrderRecommendation = () => {
                 <td>{rec.stock_out_estimate_date || 'N/A'}</td>
                 <td>{rec.recommended_order_quantity}</td>
                 <td>{rec.order_by_date || 'N/A'}</td>
-                <td>
-                  <button onClick={() => handleOrderPlaced(rec.item_code)} className="order-btn">발주 완료</button>
-                </td>
+                
               </tr>
             ))
             }

@@ -29,3 +29,31 @@
   /* 정상 상태는 특별한 배경색 없이 기본 테이블 색상을 사용하거나, 연한 녹색을 사용할 수 있습니다. */
   /* background-color: #d4edda; */ 
 }
+
+/* Styles for the adjustment button */
+.button-adjust {
+  background-color: #007bff; /* Primary blue color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out;
+  min-width: 80px; /* Ensure consistent width */
+  text-align: center;
+}
+
+.button-adjust:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.button-adjust:active {
+  background-color: #004085; /* Even darker on click */
+}
+
+.button-adjust:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Focus ring */
+}
