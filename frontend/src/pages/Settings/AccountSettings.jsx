@@ -55,13 +55,24 @@ function AccountSettings() {
         setConfirmPassword('');
     };
 
-    const handleEmailChange = (e) => {
+    const handleEmailChange = async (e) => {
         e.preventDefault();
         setMessage('');
-        // 실제 API 호출 로직 (예: PUT /api/user/email-change/)
-        console.log('이메일 변경 요청:', { email });
-        // 성공/실패 응답에 따라 메시지 설정
-        setMessage('이메일 주소가 성공적으로 변경되었습니다!');
+        setError('');
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await axios.post('http://localhost:8000/api/auth/email-change/', {
+                new_email: email,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setMessage(response.data.message || '이메일 주소가 성공적으로 변경되었습니다!');
+        } catch (err) {
+            console.error('이메일 변경 실패:', err.response ? err.response.data : err);
+            setError(err.response && err.response.data && (err.response.data.new_email || err.response.data.detail) || '이메일 변경에 실패했습니다.');
+        }
     };
 
     if (loading) {

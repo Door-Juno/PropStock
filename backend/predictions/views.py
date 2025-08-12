@@ -5,6 +5,7 @@ from products.models import Product
 import requests
 import os
 from datetime import date, timedelta
+from .serializers import SalesForecastSerializer, OrderRecommendationSerializer
 
 def _get_ai_predictions(store, predict_date):
     """AI 예측 서버로부터 품목별 판매량 예측을 가져오는 헬퍼 함수"""
@@ -12,9 +13,10 @@ def _get_ai_predictions(store, predict_date):
     if not products.exists():
         return {}, {"detail": "해당 가게에 등록된 품목이 없습니다."}, status.HTTP_404_NOT_FOUND
     
-    product_codes = [p.item_code for p in products]
+    product_codes = [p.id for p in products] # 품목 ID를 사용하도록 변경
 
     ai_request_data = {
+        "store_id": store.id, # store_id 추가
         "predict_date": predict_date.strftime("%Y-%m-%d"),
         "product_codes": product_codes,
         "is_event_day": 1 # 임시로 1로 고정
@@ -33,11 +35,12 @@ def _get_ai_predictions(store, predict_date):
         return {}, {"detail": f"AI 예측 서버 연결에 실패했습니다: {e}"}, status.HTTP_503_SERVICE_UNAVAILABLE
 
     predictions_map = {str(pred['product_code']): pred['predicted_quantity'] for pred in ai_data.get('predictions', [])}
-    product_map = {p.item_code: p for p in products}
+    product_map = {p.id: p for p in products} # product_id를 키로 사용하도록 변경
     return predictions_map, product_map, None
 
 class SalesForecastAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SalesForecastSerializer
 
     def get(self, request):
         store = request.user.store
@@ -48,19 +51,20 @@ class SalesForecastAPIView(APIView):
             return Response(product_map, error_response)
 
         results = []
-        for code, product in product_map.items():
+        for product_id, product in product_map.items(): # product_id로 순회
             results.append({
                 "product_id": product.id,
                 "item_code": product.item_code,
                 "name": product.name,
                 "current_stock": product.current_stock,
-                "predicted_quantity": predictions_map.get(code, 0) # 예측 실패 시 0으로 처리
+                "predicted_quantity": predictions_map.get(str(product_id), 0) # 예측 실패 시 0으로 처리
             })
 
         return Response(results, status=status.HTTP_200_OK)
 
 class OrderRecommendationAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = OrderRecommendationSerializer
 
     def get(self, request):
         store = request.user.store
@@ -72,8 +76,8 @@ class OrderRecommendationAPIView(APIView):
             return Response(product_map, error_response)
 
         recommendations = []
-        for code, product in product_map.items():
-            predicted_sales_tomorrow = predictions_map.get(code, 0) # 내일 예측 판매량
+        for product_id, product in product_map.items(): # product_id로 순회
+            predicted_sales_tomorrow = predictions_map.get(str(product_id), 0) # 내일 예측 판매량
             
             # 예상 재고 소진일 계산
             stock_out_estimate_date = None

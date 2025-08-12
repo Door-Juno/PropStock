@@ -64,7 +64,7 @@ pgdata/
 mysql_data/              
 
 
-ai/data/sales_data.csv
+ai/data/sales_data_store_*.csv
 
 GEMINI.md
 

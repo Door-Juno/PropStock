@@ -1,88 +1,111 @@
-.receipt-form {
-  margin-bottom: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-end;
+/* src/pages/Inventory/ReceiptsManagement.css */
+
+.receipts-management {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.receipt-form .form-group {
-  display: flex;
-  flex-direction: column;
+.receipts-management h2 {
+    color: #333;
+    font-size: 2.2em;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
 }
 
-.receipt-form input[type="number"],
-.receipt-form input[type="text"],
-.receipt-form select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  min-width: 120px;
+.receiving-form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-.receipt-form button.receipt-submit-button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
+.receiving-form h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-.receipt-form button.receipt-submit-button:hover {
-  background-color: #0056b3;
+.receiving-form form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    align-items: center;
 }
 
-/* 검색 필터 폼 스타일 (SalesHistory.css와 유사하게) */
-.search-filter-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  align-items: flex-end;
+.receiving-form input,
+.receiving-form select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.2s;
 }
 
-.search-filter-form .form-group {
-  display: flex;
-  flex-direction: column;
+.receiving-form input:focus,
+.receiving-form select:focus {
+    outline: none;
+    border-color: #007bff;
 }
 
-.search-filter-form input[type="date"],
-.search-filter-form select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.receiving-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    grid-column: 1 / -1; /* 버튼이 전체 너비를 차지하도록 설정 */
 }
 
-.search-filter-form button {
-  padding: 10px 15px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
+.receiving-form button:hover {
+    background-color: #0056b3;
 }
 
-.search-filter-form button:hover {
-  background-color: #218838;
+.receipt-history {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-/* 테이블 스타일 (DataManagementSection.css의 .data-table과 유사하게) */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+.receipt-history h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-.data-table th,
-.data-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+.receipt-history table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.data-table th {
-  background-color: #f2f2f2;
+.receipt-history th,
+.receipt-history td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.receipt-history th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.receipt-history tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.receipt-history tbody tr:hover {
+    background-color: #f1f1f1;
 }

@@ -1,8 +1,8 @@
 import pandas as pd
 from datetime import date
 
-# 공휴일 목록
-HOLIDATS_DATA = pd.DataFrame({
+# 공휴일 목록 (Prophet의 holidays 인자로 사용)
+HOLIDAYS_DATA = pd.DataFrame({
     'holiday' : 'korean_holiday',
     'ds' : pd.to_datetime([
         '2024-04-10', # 제22대 국회의원 선거
@@ -35,15 +35,10 @@ HOLIDATS_DATA = pd.DataFrame({
 def prepare_data_for_prediction(predict_date : date, is_event_day: int = 0) -> pd.DataFrame:
     future_df = pd.DataFrame({'ds' : [predict_date]})
 
-    # 학습 시 추가했던 피처들을 추가
-    # 1. 공휴일
-    is_hoilday = predict_date in HOLIDATS_DATA['ds'].dt.date.tolist()
-    future_df['공휴일'] = int(is_hoilday) 
+    # 요일 정보 추가 (Prophet 모델의 regressor 이름과 일치)
+    future_df['day_of_week'] = pd.to_datetime(future_df['ds']).dt.dayofweek
 
-    # 2. 행사여부
-    future_df['행사 여부'] = is_event_day # 매개변수로 받은 값 사용
-
-    # 3. 요일
-    future_df['요일_숫자'] = pd.to_datetime(future_df['ds']).dt.dayofweek
+    # is_event_day는 Prophet의 holidays 인자를 통해 처리되므로, future_df에 별도로 추가하지 않음
+    # 공휴일 여부도 Prophet의 holidays 인자를 통해 처리되므로, future_df에 별도로 추가하지 않음
 
     return future_df

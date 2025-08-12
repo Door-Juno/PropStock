@@ -15,7 +15,8 @@ function SalesHistory() {
     const [editFormData, setEditFormData] = useState({}); // 수정 폼 데이터
 
     useEffect(() => {
-        fetchSalesRecords();
+        // 초기 로드 시 데이터를 불러오지 않음. 검색 버튼 클릭 시에만 불러옴.
+        // fetchSalesRecords(); 
     }, []);
 
     const fetchSalesRecords = async (filters = searchFilters) => {
@@ -161,37 +162,18 @@ function SalesHistory() {
 
             <form onSubmit={handleSearchSubmit} className="search-filter-form">
                 <div className="form-group">
-                    <label htmlFor="startDate">시작 날짜:</label>
+                    <label htmlFor="searchDate">날짜 선택:</label>
                     <input
                         type="date"
-                        id="startDate"
-                        name="startDate"
-                        value={searchFilters.startDate}
-                        onChange={handleSearchChange}
+                        id="searchDate"
+                        name="searchDate"
+                        value={searchFilters.startDate} // startDate를 단일 날짜 선택으로 사용
+                        onChange={(e) => setSearchFilters({
+                            startDate: e.target.value,
+                            endDate: e.target.value, // 선택된 날짜를 endDate에도 동일하게 설정
+                        })}
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="endDate">종료 날짜:</label>
-                    <input
-                        type="date"
-                        id="endDate"
-                        name="endDate"
-                        value={searchFilters.endDate}
-                        onChange={handleSearchChange}
-                    />
-                </div>
-                {/* 품목명 검색은 백엔드 API에서 지원하지 않는다면 주석 처리하거나 백엔드 구현 필요 */}
-                {/* <div className="form-group">
-                    <label htmlFor="itemNameSearch">품목명:</label>
-                    <input
-                        type="text"
-                        id="itemNameSearch"
-                        name="itemName"
-                        value={searchFilters.itemName}
-                        onChange={handleSearchChange}
-                        placeholder="품목명으로 검색"
-                    />
-                </div> */}
                 <button type="submit" className="data-management-submit-button">검색</button>
             </form>
 

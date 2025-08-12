@@ -1,35 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './SalesForecast.css'; // CSS 파일 임포트
 
 function SalesForecast() {
     const [forecastData, setForecastData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [storeId, setStoreId] = useState(null); // 사용자 store_id
+    const [allProductCodes, setAllProductCodes] = useState([]); // AI 서비스에 보낼 품목 ID 리스트
+    const [productDetailsMap, setProductDetailsMap] = useState({}); // 품목 ID에 대한 상세 정보 맵
+    const [predictDate, setPredictDate] = useState(new Date().toISOString().slice(0, 10)); // 예측 날짜 (기본값: 오늘)
+
+    useEffect(() => {
+        const fetchUserDataAndProducts = async () => {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                setError('로그인이 필요합니다.');
+                return;
+            }
+
+            try {
+                // 1. 사용자 정보 (store_id) 가져오기
+                setStoreId(4); // TODO: 실제 사용자 store_id를 동적으로 가져오도록 수정 필요
+
+                // 2. 모든 품목 코드 및 상세 정보 가져오기
+                const productResponse = await axios.get('/api/products/', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                const codes = [];
+                const detailsMap = {};
+                productResponse.data.forEach(p => {
+                    codes.push(p.id);
+                    detailsMap[p.id] = { item_code: p.item_code, name: p.name };
+                });
+                setAllProductCodes(codes);
+                setProductDetailsMap(detailsMap);
+
+            } catch (err) {
+                setError('사용자 정보 또는 품목 정보를 불러오는 데 실패했습니다.');
+                console.error('Error fetching user data or products:', err);
+            }
+        };
+
+        fetchUserDataAndProducts();
+    }, []);
 
     const handleFetchForecast = async () => {
         setIsLoading(true);
         setError(null);
         setForecastData([]);
 
+        if (!storeId) {
+            setError('가게 ID를 불러오지 못했습니다. 로그인을 확인해주세요.');
+            setIsLoading(false);
+            return;
+        }
+        if (allProductCodes.length === 0) {
+            setError('예측할 품목이 없습니다. 품목을 등록해주세요.');
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/predictions/sales-forecast/', {
+            const requestBody = {
+                store_id: storeId,
+                product_codes: allProductCodes,
+                predict_date: predictDate,
+                is_event_day: 0, // 행사 여부 항상 0으로 고정
+            };
+
+            const response = await axios.post('http://localhost:8001/predict_sales/', requestBody, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
             });
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.detail || '수요 예측 데이터를 불러오는 데 실패했습니다.');
-            }
-
-            const data = await response.json();
-            console.log("Received forecast data:", data); // 디버그 출력 추가
-            setForecastData(data);
+            // AI 서비스 응답 형식에 맞게 데이터 처리 및 품목 상세 정보 추가
+            const data = response.data.predictions.map(p => {
+                const details = productDetailsMap[p.product_code] || { item_code: `UNKNOWN_${p.product_code}`, name: `알 수 없는 품목 ${p.product_code}` };
+                return {
+                    product_id: p.product_code,
+                    item_code: details.item_code,
+                    name: details.name,
+                    predicted_quantity: Math.round(p.predicted_quantity),
+                };
+            });
+            
+            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
+            const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
+            setForecastData(sortedData);
 
         } catch (err) {
-            setError(err.message);
+            setError(`AI 예측 서버 연결에 실패했습니다: ${err.response ? err.response.statusText : err.message}`);
+            console.error('AI 예측 오류:', err.response ? err.response.data : err);
         } finally {
             setIsLoading(false);
         }
@@ -41,8 +106,18 @@ function SalesForecast() {
             <p>내일의 품목별 예상 판매량을 예측합니다. 버튼을 클릭하여 AI 예측을 실행하세요.</p>
             
             <div className="forecast-actions">
-                <button onClick={handleFetchForecast} disabled={isLoading}>
-                    {isLoading ? '예측 중...' : '내일 판매량 예측 실행'}
+                <div className="form-group">
+                    <label htmlFor="predictDate">예측 날짜:</label>
+                    <input 
+                        type="date" 
+                        id="predictDate" 
+                        value={predictDate} 
+                        onChange={(e) => setPredictDate(e.target.value)} 
+                        className="date-input"
+                    />
+                </div>
+                <button onClick={handleFetchForecast} disabled={isLoading || !storeId || allProductCodes.length === 0} className="action-button">
+                    {isLoading ? '예측 중...' : '판매량 예측 실행'}
                 </button>
             </div>
 
@@ -52,21 +127,21 @@ function SalesForecast() {
 
             {forecastData.length > 0 && (
                 <div className="forecast-results">
-                    <h3>예측 결과 (내일)</h3>
+                    <h3>예측 결과 ({predictDate})</h3>
                     <table className="forecast-table">
                         <thead>
                             <tr>
-                                <th>품목명</th>
-                                <th>현재고</th>
+                                <th>품목코드</th>
+                                <th>상품명</th>
                                 <th>예상 판매량</th>
                             </tr>
                         </thead>
                         <tbody>
                             {forecastData.map((item) => (
                                 <tr key={item.product_id}>
+                                    <td>{item.item_code}</td>
                                     <td>{item.name}</td>
-                                    <td>{item.current_stock}</td>
-                                    <td>{item.predicted_quantity.toFixed(1)} 개</td>
+                                    <td>{item.predicted_quantity} 개</td>
                                 </tr>
                             ))}
                         </tbody>

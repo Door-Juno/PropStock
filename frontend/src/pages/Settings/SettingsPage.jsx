@@ -3,7 +3,7 @@ import { Routes, Route, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccountSettings from './AccountSettings';
 import StoreSettings from './StoreSettings';
-import NotificationSettings from './NotificationSettings';
+// Removed NotificationSettings import
 import './SettingsPage.css'; // 설정 페이지 전체 CSS
 
 function SettingsPage() {
@@ -55,14 +55,7 @@ function SettingsPage() {
                                 매장 설정
                             </NavLink>
                         </li>
-                        <li>
-                            <NavLink
-                                to="/settings/notifications"
-                                className={({ isActive }) => (isActive ? 'active-link' : undefined)}
-                            >
-                                알림 설정
-                            </NavLink>
-                        </li>
+                        {/* Removed Notification Settings NavLink */}
                     </ul>
                     <div className="logout-button-container">
                         <button className="logout-button" onClick={handle_Logout}>

@@ -25,7 +25,9 @@ const OrderRecommendation = () => {
       }
 
       const data = await response.json();
-      setRecommendations(data);
+      // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
+      const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
+      setRecommendations(sortedData);
 
     } catch (err) {
       setError(err.message);
@@ -67,7 +69,7 @@ const OrderRecommendation = () => {
               <th>예상 소진일</th>
               <th>추천 발주량</th>
               <th>권장 발주 시점</th>
-              <th>작업</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -79,9 +81,7 @@ const OrderRecommendation = () => {
                 <td>{rec.stock_out_estimate_date || 'N/A'}</td>
                 <td>{rec.recommended_order_quantity}</td>
                 <td>{rec.order_by_date || 'N/A'}</td>
-                <td>
-                  <button onClick={() => handleOrderPlaced(rec.item_code)} className="order-btn">발주 완료</button>
-                </td>
+                
               </tr>
             ))
             }

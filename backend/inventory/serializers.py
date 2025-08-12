@@ -4,16 +4,12 @@ from .models import InventoryTransaction
 from products.models import Product
 
 class InventoryTransactionSerializer(serializers.ModelSerializer):
-    item_name = serializers.CharField(source='product.name', read_only=True)
-    store_name = serializers.CharField(source='store.name', read_only=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    store = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = InventoryTransaction
-        fields = [
-            'id', 'store', 'store_name', 'product', 'item_name',
-            'date', 'type', 'quantity', 'notes', 'created_at'
-        ]
-        read_only_fields = ['id', 'store', 'store_name', 'item_name', 'created_at']
+        fields = ['id', 'store', 'product', 'product_name', 'transaction_date', 'type', 'quantity', 'notes', 'created_at']
 
     def create(self, validated_data):
         with transaction.atomic():
