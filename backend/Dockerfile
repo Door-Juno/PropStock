@@ -26,8 +26,8 @@ COPY . /app/
 
 # --- 프로덕션 설정 추가 ---
 # 1. 정적 파일 수집
-# 이 명령은 settings.py의 STATIC_ROOT에 정의된 폴더로 모든 정적 파일을 복사합니다.
-RUN python manage.py collectstatic --no-input
+# 빌드 시점에는 .env의 SECRET_KEY를 읽을 수 없으므로, 임시 키를 제공하여 실행합니다.
+RUN SECRET_KEY_BASE=dummy-key-for-collectstatic python manage.py collectstatic --no-input
 
 # Django 애플리케이션이 8000번 포트를 사용한다고 선언
 EXPOSE 8000
