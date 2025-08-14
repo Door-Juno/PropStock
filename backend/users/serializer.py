@@ -45,3 +45,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             store=store
         )
         return user
+
+# drf-spectacular (API 문서)를 위한 Serializer
+class PasswordChangeSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_new_password = serializers.CharField(required=True, write_only=True)
+
+class EmailChangeSerializer(serializers.Serializer):
+    new_email = serializers.EmailField(required=True)

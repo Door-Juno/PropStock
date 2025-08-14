@@ -65,7 +65,10 @@ mysql_data/
 
 
 ai/data/sales_data_store_*.csv
+ai/mlruns/
 
-GEMINI.*
+GEMINI.md
 
 .dockerignore
+
+propstock.pem

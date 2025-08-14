@@ -1,13 +1,16 @@
 import pandas as pd
 from prophet import Prophet
-import joblib
 import os
 import glob
+import mlflow
+import mlflow.prophet
+from prophet.diagnostics import cross_validation, performance_metrics
 
-# 데이터 및 모델 경로 설정
+# 데이터 경로 설정
 DATA_DIR = '/app/ai/data'
-MODEL_DIR = 'models'
-os.makedirs(MODEL_DIR, exist_ok=True)
+
+# MLflow 실험 설정 (없으면 자동으로 생성됨)
+mlflow.set_experiment("propstock-training-by-product")
 
 # data 폴더에 있는 모든 가게별 CSV 파일 목록을 가져옵니다.
 store_csv_files = glob.glob(os.path.join(DATA_DIR, 'sales_data_store_*.csv'))
@@ -40,39 +43,70 @@ for file_path in store_csv_files:
         holidays_df['holiday'] = 'event_day'
         holidays_df = holidays_df.drop_duplicates()
 
-        # 품목별 학습 및 저장
+        # 품목별 학습 및 MLflow에 기록
         unique_products = df['item_code'].unique()
-        models_by_product = {}
-
+        
         print(f"총 {len(unique_products)}개의 품목에 대해 학습 시작...")
         for product_code in unique_products:
-            product_df = df[df['item_code'] == product_code].copy()
+            # --- MLflow Run 시작 ---
+            with mlflow.start_run(run_name=f"store_{store_id}_product_{product_code}"):
+                product_df = df[df['item_code'] == product_code].copy()
 
-            if len(product_df) < 2:
-                print(f"Warning: '{product_code}' 품목은 데이터가 부족하여 학습을 건너뜁니다.")
-                continue
+                # 교차 검증을 위해 최소 10개 이상의 데이터가 필요
+                if len(product_df) < 10:
+                    print(f"Warning: '{product_code}' 품목은 데이터가 부족하여 (10개 미만) 학습을 건너뜁니다.")
+                    continue
 
-            m = Prophet(
-                yearly_seasonality=True,
-                weekly_seasonality=True,
-                daily_seasonality=False,
-                seasonality_mode='additive',
-                holidays=holidays_df if not holidays_df.empty else None
-            )
-            m.add_regressor('day_of_week')
-            m.fit(product_df)
-            models_by_product[product_code] = m
-            print(f"'{product_code}' 품목 모델 학습 완료.")
+                print(f"\nProcessing product: {product_code}")
+                
+                # MLflow에 파라미터 로깅
+                mlflow.log_param("store_id", store_id)
+                mlflow.log_param("product_code", product_code)
+                mlflow.log_param("data_points", len(product_df))
+                
+                seasonality_mode = 'additive'
+                has_holidays = not holidays_df.empty
+                
+                mlflow.log_param("seasonality_mode", seasonality_mode)
+                mlflow.log_param("has_holidays", has_holidays)
 
-        # 가게별로 별도의 모델 파일 저장
-        if models_by_product:
-            model_path_full = os.path.join(MODEL_DIR, f'prophet_model_store_{store_id}.pkl')
-            joblib.dump(models_by_product, model_path_full)
-            print(f"가게 ID {store_id}의 모든 학습된 모델이 '{model_path_full}'에 저장되었습니다.")
-        else:
-            print(f"가게 ID {store_id}에 대해 학습된 모델이 없습니다.")
+                m = Prophet(
+                    yearly_seasonality=True,
+                    weekly_seasonality=True,
+                    daily_seasonality=False,
+                    seasonality_mode=seasonality_mode,
+                    holidays=holidays_df if has_holidays else None
+                )
+                m.add_regressor('day_of_week')
+                m.fit(product_df)
+                
+                print(f"'{product_code}' 품목 모델 학습 완료.")
+
+                # 교차 검증 및 성능 평가
+                try:
+                    # 데이터 양에 따라 initial, period, horizon 값 조정이 필요할 수 있습니다.
+                    df_cv = cross_validation(m, initial='30 days', period='15 days', horizon='7 days', parallel="processes")
+                    df_p = performance_metrics(df_cv, rolling_window=1)
+                    
+                    # 성능 지표 로깅 (가장 최근 horizon의 평균값)
+                    performance_dict = df_p.mean().to_dict()
+                    performance_dict['horizon_days'] = performance_dict['horizon'].days
+                    del performance_dict['horizon']
+                    
+                    mlflow.log_metrics(performance_dict)
+                    print(f"'{product_code}' 품목 성능 평가 완료.")
+
+                except Exception as cv_e:
+                    print(f"Could not perform cross-validation for product {product_code}: {cv_e}")
+                    mlflow.log_param("cross_validation_error", str(cv_e))
+
+                # MLflow에 모델 로깅
+                # 이 함수는 모델, 예측 그래프, 구성요소 그래프를 자동으로 저장합니다.
+                mlflow.prophet.log_model(m, artifact_path=f"prophet-model-{product_code}")
+                print(f"'{product_code}' 품목 모델이 MLflow에 저장되었습니다.")
 
     except Exception as e:
         print(f"오류 발생 (파일: {file_path}): {e}")
 
 print("\n모든 가게에 대한 모델 학습이 완료되었습니다.")
+print("MLflow UI를 실행하여 결과를 확인하세요: mlflow ui")

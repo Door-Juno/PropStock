@@ -11,34 +11,28 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
-
-from pathlib import Path
-import os
 from dotenv import load_dotenv
-
-# BASE_DIR 정의 바로 아래쯤
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# ✅ .env 파일 경로 불러오기
-dotenv_path = BASE_DIR / '.env'  # 또는 BASE_DIR / 'backend' / '.env' (파일 위치에 따라 조정)
-load_dotenv(dotenv_path)
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# .env 파일 경로 불러오기
+dotenv_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-default-insecure-key-for-dev-only')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# .env 파일에 DEBUG=True가 없으면, 기본적으로 False(프로덕션 모드)로 동작합니다.
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# .env 파일에서 호스트를 가져오거나, 개발 시에는 localhost를 기본으로 사용합니다.
+ALLOWED_HOSTS_str = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_str.split(',') if host.strip()]
 
 
 # Application definition
@@ -59,7 +53,6 @@ INSTALLED_APPS = [
     'sales',
     'inventory',
     'predictions',
-    
 ]
 
 MIDDLEWARE = [
@@ -99,10 +92,10 @@ WSGI_APPLICATION = 'propstock.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'mydjangodb'),     # Docker Compose에서 설정할 환경 변수
-        'USER': os.environ.get('POSTGRES_USER', 'myuser'),       # Docker Compose에서 설정할 환경 변수
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'mypassword'), # Docker Compose에서 설정할 환경 변수
-        'HOST': os.environ.get('POSTGRES_HOST', 'db'),           # Docker Compose 서비스 이름
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
@@ -128,7 +121,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
-CORS_ALLOW_ALL_ORIGINS = True # <--- 개발 시 편리, 배포 시에는 특정 도메인만 허용하도록 변경
+# CORS 설정 - 프로덕션 환경에서는 허용할 프론트엔드 도메인을 명시합니다.
+CORS_ALLOWED_ORIGINS_str = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS_str.split(',') if origin.strip()]
+# CSRF 쿠키를 허용할 도메인 목록
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -146,6 +144,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# 배포 시 `collectstatic` 명령어로 정적 파일들을 모을 경로
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -190,9 +191,8 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Propstock API 문서', # API 문서의 제목
-    'DESCRIPTION': 'Propstock API 문서입니다.', # API 문서 설명
-    'VERSION': '1.0.0', # API 버전
-    'SERVE_INCLUDE_SCHEMA': False, # schema.json 파일을 제공할지 여부
-    # 기타 필요한 설정들
+    'TITLE': 'Propstock API 문서',
+    'DESCRIPTION': 'Propstock API 문서입니다.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
