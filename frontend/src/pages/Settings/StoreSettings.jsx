@@ -57,7 +57,7 @@ function StoreSettings() {
         setMessage('');
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.put('http://localhost:8000/api/store/', storeInfo, {
+            const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/store/`, storeInfo, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`

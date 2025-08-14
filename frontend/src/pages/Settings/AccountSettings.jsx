@@ -61,7 +61,7 @@ function AccountSettings() {
         setError('');
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await axios.post('http://localhost:8000/api/auth/email-change/', {
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/email-change/`, {
                 new_email: email,
             }, {
                 headers: {

@@ -70,7 +70,7 @@ function SalesForecast() {
                 is_event_day: 0, // 행사 여부 항상 0으로 고정
             };
 
-            const response = await axios.post('http://localhost:8001/predict_sales/', requestBody, {
+            const response = await axios.post(`${process.env.REACT_APP_AI_API_URL}/predict_sales/`, requestBody, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',

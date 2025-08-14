@@ -15,7 +15,7 @@ function Header() {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
             try {
-                await axios.post('http://localhost:8000/api/auth/logout/', {
+                await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/logout/`, {
                     refresh: refreshToken
                 });
             } catch (error) {
