@@ -39,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - DEBUG=False # 프로덕션에서는 DEBUG 모드 비활성화
+      - DEBUG=True # 임시로 디버그 모드 활성화
     depends_on:
       db:
         condition: service_healthy
