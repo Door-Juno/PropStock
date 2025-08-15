@@ -14,6 +14,9 @@ RUN npm install
 # 나머지 소스 코드 복사
 COPY . .
 
+# .env 파일을 복사하여 빌드 시점에 환경 변수를 사용할 수 있도록 합니다.
+COPY .env ./.env
+
 # 프로덕션용으로 앱을 빌드합니다. /app/build 폴더에 결과물이 생성됩니다.
 RUN npm run build
 

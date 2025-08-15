@@ -71,4 +71,5 @@ GEMINI.md
 
 .dockerignore
 
-propstock*.pem
+propstock.pem
+propstock1.pem
