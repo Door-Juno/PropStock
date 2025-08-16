@@ -1,5 +1,3 @@
-
-
 services:
   # Nginx 리버스 프록시 (프로덕션의 유일한 진입점)
   nginx:
@@ -81,3 +79,4 @@ volumes:
   pgdata:
   static_volume:
   ai_data_volume:
+  ai_models_volume: # AI 모델 저장용 볼륨
