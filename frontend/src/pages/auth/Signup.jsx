@@ -35,7 +35,6 @@ function Signup() {
                 email: useremail, 
                 username,
                 password,
-                password_confirm: passwordConfirm,
                 store: {
                     name: storeName,
                     industry: storeIndustry,
