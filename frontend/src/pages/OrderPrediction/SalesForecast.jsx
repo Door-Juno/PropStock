@@ -78,7 +78,7 @@ function SalesForecast() {
             });
 
             // AI 서비스 응답 형식에 맞게 데이터 처리 및 품목 상세 정보 추가
-            const data = response.data.predictions.map(p => {
+            const data = response.data.map(p => {
                 const details = productDetailsMap[p.product_code] || { item_code: `UNKNOWN_${p.product_code}`, name: `알 수 없는 품목 ${p.product_code}` };
                 return {
                     product_id: p.product_code,
