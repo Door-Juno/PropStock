@@ -70,11 +70,11 @@ function SalesForecast() {
                 is_event_day: 0, // 행사 여부 항상 0으로 고정
             };
 
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/predictions/sales-forecast/`, requestBody, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/predictions/sales-forecast/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                 },
+                params: requestBody, // GET 요청 시 body 대신 params 사용
             });
 
             // AI 서비스 응답 형식에 맞게 데이터 처리 및 품목 상세 정보 추가
