@@ -46,6 +46,9 @@ for file_path in store_csv_files:
         # 품목별 학습 및 MLflow에 기록
         unique_products = df['item_code'].unique()
         
+        # 가게의 모든 품목 모델을 저장할 딕셔너리
+        store_models = {}
+        
         print(f"총 {len(unique_products)}개의 품목에 대해 학습 시작...")
         for product_code in unique_products:
             # --- MLflow Run 시작 ---
@@ -81,6 +84,9 @@ for file_path in store_csv_files:
                 m.fit(product_df)
                 
                 print(f"'{product_code}' 품목 모델 학습 완료.")
+                
+                # 학습된 모델을 딕셔너리에 추가
+                store_models[product_code] = m
 
                 # 교차 검증 및 성능 평가
                 try:
@@ -104,6 +110,18 @@ for file_path in store_csv_files:
                 # 이 함수는 모델, 예측 그래프, 구성요소 그래프를 자동으로 저장합니다.
                 mlflow.prophet.log_model(m, artifact_path=f"prophet-model-{product_code}")
                 print(f"'{product_code}' 품목 모델이 MLflow에 저장되었습니다.")
+
+        # --- 모든 품목 학습 완료 후, 가게 모델 전체를 .pkl 파일로 저장 ---
+        if store_models:
+            output_dir = "/app/models"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, f"prophet_model_store_{store_id}.pkl")
+            
+            try:
+                joblib.dump(store_models, output_path)
+                print(f"성공: 가게 ID {store_id}의 모델이 {output_path}에 저장되었습니다.")
+            except Exception as dump_e:
+                print(f"오류: 가게 ID {store_id}의 모델을 파일로 저장하는 데 실패했습니다. 에러: {dump_e}")
 
     except Exception as e:
         print(f"오류 발생 (파일: {file_path}): {e}")
