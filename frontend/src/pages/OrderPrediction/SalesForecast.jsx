@@ -82,11 +82,10 @@ function SalesForecast() {
 
             // AI 서비스 응답 형식에 맞게 데이터 처리 및 품목 상세 정보 추가
             const data = response.data.map(p => {
-                const details = productDetailsMap[p.product_code] || { item_code: `UNKNOWN_${p.product_code}`, name: `알 수 없는 품목 ${p.product_code}` };
                 return {
-                    product_id: p.product_code,
-                    item_code: details.item_code,
-                    name: details.name,
+                    product_id: p.product_id, // 응답에서 직접 product_id 사용
+                    item_code: p.item_code,   // 응답에서 직접 item_code 사용
+                    name: p.name,             // 응답에서 직접 name 사용
                     predicted_quantity: Math.round(p.predicted_quantity),
                 };
             });
