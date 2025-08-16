@@ -55,7 +55,7 @@ services:
     volumes:
       - ./ai:/app
       - ai_data_volume:/app/ai/data # AI 데이터 공유 볼륨 마운트
-      - /app/models
+      - ai_models_volume:/app/models # AI 모델 저장용 볼륨
     ports:
       - "${AI_PORT:-8001}:8001" # 로컬 8001 포트와 컨테이너 8001 포트 연결 (기본값 8001)
     environment: # AI 서비스에 필요한 환경 변수
