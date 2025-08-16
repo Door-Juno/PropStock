@@ -22,6 +22,7 @@ app = FastAPI(
 # CORS 미들웨어 설정
 origins = [
     "http://localhost:3000",  # React 개발 서버
+    "http://54.180.30.61", # 프로덕션 프론트엔드 서버
 ]
 app.add_middleware(
     CORSMiddleware,
