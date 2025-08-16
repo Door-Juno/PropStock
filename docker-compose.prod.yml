@@ -54,6 +54,7 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1
     volumes:
       - ai_data_volume:/app/ai/data
+      - ai_models_volume:/app/models # AI 모델 저장용 볼륨
     expose:
       - "8001" # Docker 네트워크 내부에서만 8001 포트 노출
     environment:
