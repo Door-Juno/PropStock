@@ -17,7 +17,7 @@ const SalesTrendReport = () => {
         setError(null);
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch(`/api/reports/sales-trend/?start_date=${startDate}&end_date=${endDate}&aggregation_unit=${aggUnit}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reports/sales-trend/?start_date=${startDate}&end_date=${endDate}&aggregation_unit=${aggUnit}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },

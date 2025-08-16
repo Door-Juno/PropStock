@@ -63,7 +63,7 @@ function SalesDataUpload() {
                 return;
             }
 
-            const response = await fetch('/api/sales/bulk-upload/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/bulk-upload/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }, // 인증 토큰 추가
                 body: formData,
@@ -102,7 +102,7 @@ function SalesDataUpload() {
             setMessage('템플릿 다운로드 중...');
             setError('');
 
-            const response = await axios.get('/api/sales/template/download/', {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/sales/template/download/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },

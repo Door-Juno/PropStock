@@ -13,7 +13,7 @@ function InventoryStatus() {
     const fetchInventory = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/inventory/status/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/inventory/status/`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (!response.ok) {
@@ -47,7 +47,7 @@ function InventoryStatus() {
     const handleSaveAdjustment = async (productId, adjustmentData) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/inventory/transactions/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/inventory/transactions/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

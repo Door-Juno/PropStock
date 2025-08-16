@@ -18,7 +18,7 @@ const ReceiptsManagement = () => {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         // Fetch products for dropdown
-        axios.get('/api/products/', { headers })
+        axios.get(`${process.env.REACT_APP_API_URL}/api/products/`, { headers })
             .then(response => {
                 // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
                 const sortedData = response.data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
@@ -29,7 +29,7 @@ const ReceiptsManagement = () => {
             });
 
         // Fetch receipt history
-        axios.get('/api/inventory/transactions/?type=in', { headers })
+        axios.get(`${process.env.REACT_APP_API_URL}/api/inventory/transactions/?type=in`, { headers })
             .then(response => {
                 setReceipts(response.data);
             })
@@ -48,7 +48,7 @@ const ReceiptsManagement = () => {
         const token = localStorage.getItem('accessToken');
         const headers = { 'Authorization': `Bearer ${token}` };
 
-        axios.post('/api/inventory/transactions/', { ...formData, type: 'in' }, { headers })
+        axios.post(`${process.env.REACT_APP_API_URL}/api/inventory/transactions/`, { ...formData, type: 'in' }, { headers })
             .then(response => {
                 setReceipts([response.data, ...receipts]);
                 // Reset form

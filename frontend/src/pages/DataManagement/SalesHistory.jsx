@@ -30,7 +30,7 @@ function SalesHistory() {
             // if (filters.itemName) queryParams.append('item_name', filters.itemName);
 
             const token = localStorage.getItem('accessToken');
-            const response = await fetch(`/api/sales/records/?${queryParams.toString()}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/records/?${queryParams.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -97,7 +97,7 @@ function SalesHistory() {
                 is_event_day: editFormData.is_event_day,
             };
 
-            const response = await fetch(`/api/sales/records/${id}/`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/records/${id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ function SalesHistory() {
         setMessage('');
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch(`/api/sales/records/${id}/`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/records/${id}/`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });

@@ -16,7 +16,7 @@ function NotificationSettings() {
         const fetchNotificationSettings = async () => {
             try {
                 // 데이터 소스: GET /api/settings/notifications/
-                const response = await fetch('/api/settings/notifications/');
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/settings/notifications/`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -63,7 +63,7 @@ function NotificationSettings() {
         setMessage('');
         try {
             // 데이터 전송: PUT /api/settings/notifications/
-            const response = await fetch('/api/settings/notifications/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/settings/notifications/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -24,7 +24,7 @@ function SalesForecast() {
                 setStoreId(4); // TODO: 실제 사용자 store_id를 동적으로 가져오도록 수정 필요
 
                 // 2. 모든 품목 코드 및 상세 정보 가져오기
-                const productResponse = await axios.get('/api/products/', {
+                const productResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/products/`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
                 const codes = [];

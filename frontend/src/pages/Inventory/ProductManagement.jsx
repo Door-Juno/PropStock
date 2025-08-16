@@ -12,7 +12,7 @@ const ProductManagement = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/products/', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!response.ok) {
@@ -49,7 +49,7 @@ const ProductManagement = () => {
     if (window.confirm('정말로 이 품목을 삭제하시겠습니까?')) {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`/api/products/${productId}/`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${productId}/`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -74,7 +74,7 @@ const ProductManagement = () => {
       const token = localStorage.getItem('accessToken');
       let response;
       if (productData.id) { // 수정
-        response = await fetch(`/api/products/${productData.id}/`, {
+                response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/${productData.id}/`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ const ProductManagement = () => {
           body: JSON.stringify(productData),
         });
       } else { // 추가
-        response = await fetch('/api/products/', {
+        response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

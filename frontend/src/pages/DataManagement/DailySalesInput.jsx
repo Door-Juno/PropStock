@@ -13,7 +13,7 @@ function DailySalesInput() {
     const fetchProducts = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/products/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/products/`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (!response.ok) {
@@ -82,7 +82,7 @@ function DailySalesInput() {
 
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('/api/sales/records/', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/records/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

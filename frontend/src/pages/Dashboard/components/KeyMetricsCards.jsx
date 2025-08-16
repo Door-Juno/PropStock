@@ -13,7 +13,7 @@ function KeyMetricsCards() {
                 // 실제 API 엔드포인트: /api/reports/summary/
                 // 개발 시에는 mock 데이터를 사용하거나 프록시 설정을 고려해야 합니다.
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('/api/reports/summary/', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reports/summary/`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },

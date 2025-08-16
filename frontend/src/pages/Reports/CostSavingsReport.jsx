@@ -10,7 +10,7 @@ const CostSavingsReport = () => {
     const fetchCostData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('/api/reports/cost-savings/', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reports/cost-savings/`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

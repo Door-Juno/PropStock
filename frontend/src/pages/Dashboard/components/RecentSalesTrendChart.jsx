@@ -35,7 +35,7 @@ function RecentSalesTrendChart() {
                 const startDate = new Date();
                 startDate.setDate(endDate.getDate() - 7);
                 
-                const response = await fetch(`/api/reports/sales-trend/?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`, {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reports/sales-trend/?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },

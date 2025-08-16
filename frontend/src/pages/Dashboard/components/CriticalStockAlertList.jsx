@@ -12,7 +12,7 @@ function CriticalStockAlertList() {
             try {
                 // 실제 API 엔드포인트: /api/inventory/status/?alert_type=low_stock
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('/api/inventory/status/?alert_type=low_stock', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/inventory/status/?alert_type=low_stock`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },

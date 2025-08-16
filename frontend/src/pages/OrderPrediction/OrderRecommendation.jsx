@@ -13,7 +13,7 @@ const OrderRecommendation = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/predictions/orders/recommendations/', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/predictions/orders/recommendations/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

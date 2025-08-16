@@ -33,7 +33,7 @@ const InventoryEfficiencyReport = () => {
       setError(null);
       try {
         // Fetch Inventory Turnover Data
-        const turnoverResponse = await axios.get('/api/reports/inventory-turnover/', {
+        const turnoverResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/inventory-turnover/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
@@ -53,7 +53,7 @@ const InventoryEfficiencyReport = () => {
         });
 
         // Fetch Cost Savings Data (Waste Analysis)
-        const costSavingsResponse = await axios.get('/api/reports/cost-savings/', {
+        const costSavingsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/cost-savings/`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
