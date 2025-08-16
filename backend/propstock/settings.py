@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # .env 파일 경로 불러오기
-dotenv_path = BASE_DIR / '.env'
+dotenv_path = BASE_DIR.parent / '.env'
 load_dotenv(dotenv_path)
 
 # Quick-start development settings - unsuitable for production
