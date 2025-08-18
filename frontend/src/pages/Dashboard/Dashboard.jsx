@@ -32,7 +32,6 @@ function Dashboard() {
                     <RecentSalesTrendChart />
                 </section>
 
-                {/* 여기에 추가적인 대시보드 섹션이나 컴포넌트를 배치할 수 있습니다 */}
             </main>
         </div>
     );

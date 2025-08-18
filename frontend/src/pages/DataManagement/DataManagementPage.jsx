@@ -1,10 +1,10 @@
 // src/pages/DataManagement/DataManagementPage.jsx
 import React from 'react';
 import { Routes, Route, NavLink, Outlet } from 'react-router-dom';
-import DailySalesInput from './DailySalesInput'; // 일일 판매 기록 입력 탭
-import SalesDataUpload from './SalesDataUpload';   // 과거 판매 데이터 업로드 탭
-import SalesHistory from './SalesHistory';       // 판매 내역 조회 탭
-import './DataManagementPage.css'; // 데이터 관리 페이지 전체 CSS
+import DailySalesInput from './DailySalesInput';
+import SalesDataUpload from './SalesDataUpload'; 
+import SalesHistory from './SalesHistory';     
+import './DataManagementPage.css';
 
 function DataManagementPage() {
     return (
@@ -43,7 +43,6 @@ function DataManagementPage() {
                 </nav>
 
                 <div className="data-management-main-area">
-                    {/* 중첩 라우트의 내용을 표시할 곳 */}
                     <Outlet />
                 </div>
             </div>

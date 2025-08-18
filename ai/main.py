@@ -35,18 +35,14 @@ app.add_middleware(
 # 모델 파일이 저장된 디렉토리
 MODEL_DIR = "models"
 
-# 로드된 모델을 캐싱하기 위한 딕셔너리
-# key: store_id, value: loaded_model
 loaded_models_cache: Dict[int, Dict] = {}
 
 def get_model_for_store(store_id: int):
     """지정된 가게 ID의 모델을 로드하고 캐시합니다."""
-    # 1. 캐시 확인
     if store_id in loaded_models_cache:
         print(f"Cache hit for store_id: {store_id}")
         return loaded_models_cache[store_id]
 
-    # 2. 캐시에 없으면 파일에서 로드
     model_path = os.path.join(MODEL_DIR, f"prophet_model_store_{store_id}.pkl")
     if not os.path.exists(model_path):
         print(f"WARNING: Model file not found for store_id: {store_id} at {model_path}")
@@ -55,7 +51,6 @@ def get_model_for_store(store_id: int):
     try:
         print(f"Loading model from file for store_id: {store_id}")
         model = joblib.load(model_path)
-        # 3. 캐시에 저장
         loaded_models_cache[store_id] = model
         return model
     except Exception as e:

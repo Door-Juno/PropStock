@@ -2,9 +2,7 @@ from django.db import models
 from users.models import Store
 
 class Product(models.Model):
-    # 어떤 상점(Store)에 속한 상품인지 구분하기 위한 외래 키입니다.
-    # 사용자가 탈퇴하거나 상점 정보가 삭제될 때, 관련된 상품 정보도 함께 삭제됩니다 (on_delete=models.CASCADE).
-    store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True) # 마이그레이션을 위해 임시로 null 허용
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True)
 
     item_code = models.CharField(max_length=20, unique=True)  # 품목 코드
     name = models.CharField(max_length=100)                   # 품목명

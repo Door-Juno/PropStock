@@ -14,8 +14,6 @@ function Login () {
         setError(''); 
 
         try {
-            // login API 들어오는 자리임.
-            // 실제 API 는 환경변수로 관리할 것
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login/`, {
                 email,
                 password,

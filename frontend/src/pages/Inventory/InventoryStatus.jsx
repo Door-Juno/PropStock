@@ -1,6 +1,6 @@
 // src/pages/Inventory/InventoryStatus.jsx
 import React, { useState, useEffect } from 'react';
-import InventoryAdjustmentModal from './components/InventoryAdjustmentModal'; // 수정된 모달 임포트
+import InventoryAdjustmentModal from './components/InventoryAdjustmentModal'; 
 import './InventoryStatus.css';
 
 function InventoryStatus() {
@@ -20,7 +20,6 @@ function InventoryStatus() {
                 throw new Error('재고 현황을 불러오는 데 실패했습니다.');
             }
             const data = await response.json();
-            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
             const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
             setInventory(sortedData);
         } catch (err) {
@@ -72,7 +71,6 @@ function InventoryStatus() {
 
         } catch (err) {
             setError(`오류: ${err.message}`);
-            // 모달을 닫지 않고 에러를 표시할 수도 있습니다.
         }
     };
 
@@ -83,10 +81,6 @@ function InventoryStatus() {
         if (item.current_stock < item.safety_stock) {
             return { text: '주의', className: 'status-warning' };
         }
-        // 과잉 상태에 대한 정의가 필요하다면 여기에 추가할 수 있습니다.
-        // 예: if (item.current_stock > item.safety_stock * 2) {
-        //     return { text: '과잉', className: 'status-high' };
-        // }
         return { text: '정상', className: 'status-normal' };
     };
 

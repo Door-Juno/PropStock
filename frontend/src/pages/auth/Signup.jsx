@@ -53,7 +53,6 @@ function Signup() {
             console.error('회원가입 실패: ', err);
             if (err.response && err.response.data){
                 const errorData = err.response.data ;
-                // API 응답 형식에 따라 에러 메시지 처리 로직 수정
                 if (errorData.email) setError(`이메일: ${errorData.email[0]}`);
                 else if (errorData.username) setError(`아이디: ${errorData.username[0]}`);
                 else if (errorData.password) setError(`비밀번호: ${errorData.password[0]}`);

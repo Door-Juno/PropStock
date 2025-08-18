@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './OrderRecommendation.css'; // CSS 파일 임포트
+import './OrderRecommendation.css';
 
 const OrderRecommendation = () => {
   const [recommendations, setRecommendations] = useState([]);

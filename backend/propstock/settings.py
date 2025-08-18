@@ -121,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
-# CORS 설정 - 프로덕션 환경에서는 허용할 프론트엔드 도메인을 명시합니다.
+# CORS 설정 
 CORS_ALLOWED_ORIGINS_str = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')
 CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS_str.split(',') if origin.strip()]
 # CSRF 쿠키를 허용할 도메인 목록

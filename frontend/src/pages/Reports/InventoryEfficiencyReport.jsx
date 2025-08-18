@@ -79,7 +79,7 @@ const InventoryEfficiencyReport = () => {
     };
 
     fetchReportData();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []); 
 
   if (loading) {
     return <div className="inventory-efficiency-report-container">로딩 중...</div>;

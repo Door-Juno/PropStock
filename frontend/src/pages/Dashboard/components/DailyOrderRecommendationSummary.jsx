@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
+import { useNavigate } from 'react-router-dom';
 import './DailyOrderRecommendationSummary.css';
 
 function DailyOrderRecommendationSummary() {
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); // useNavigate 훅 사용
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchRecommendations = async () => {

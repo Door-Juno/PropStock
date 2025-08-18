@@ -1,7 +1,7 @@
 # PROPSTOCK : AI 기반 재고 관리 솔루션
 ![로고](./assets/logo.png)
 
-프로젝트 시연 영상 : 
+프로젝트 시연 영상 : https://www.youtube.com/watch?v=1o44j9__jF4
 
 ## 프로젝트 목적
 "Propstock" 프로젝트는 소상공인이 효율적으로 재고를 관리하고 수요을 예측할 수 있도록 돕는 AI 기반 재고 관리 솔루션 입니다.
@@ -64,6 +64,7 @@
 **AI Service**
 - FastAPI
 - Scikit-learn
+- Prophet
 
 **Database**
 - PostgreSQL
@@ -71,8 +72,6 @@
 **DevOps**
 - Docker
 - Docker Compose
-
-## 소스 디렉토리 구조
 
 ## 팀원
 문준호 : github.com/Door-juno

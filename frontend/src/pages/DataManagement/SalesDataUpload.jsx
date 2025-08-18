@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import './DataManagementSection.css'; // 공통 스타일
+import './DataManagementSection.css';
 
 function SalesDataUpload() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [isDragOver, setIsDragOver] = useState(false);
-    const [uploadResult, setUploadResult] = useState(null); // { success: true, message: "...", errors: [] }
+    const [uploadResult, setUploadResult] = useState(null);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const fileInputRef = useRef(null);
@@ -70,14 +70,14 @@ function SalesDataUpload() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json(); // JSON 형식의 에러 응답 처리
+                const errorData = await response.json(); 
                 throw new Error(errorData.message || `파일 업로드 실패: ${response.status}`);
             }
 
             const result = await response.json();
             setUploadResult({
                 total_rows: result.total_rows,
-                success_rows: result.processed_rows, // 백엔드의 processed_rows를 success_rows로 매핑
+                success_rows: result.processed_rows,
                 failed_rows: result.failed_rows,
                 errors: result.errors,
                 message: result.message || '파일 업로드가 완료되었습니다.'
@@ -106,7 +106,7 @@ function SalesDataUpload() {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
-                responseType: 'blob', // 파일을 바이너리 데이터로 받기 위해 blob 타입으로 설정
+                responseType: 'blob', 
             });
 
             // 파일 다운로드 트리거

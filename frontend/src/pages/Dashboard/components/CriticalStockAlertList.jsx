@@ -1,6 +1,6 @@
 // components/CriticalStockAlertList.jsx
 import React, { useState, useEffect } from 'react';
-import './CriticalStockAlertList.css'; // 별도 CSS 파일 (나중에 생성)
+import './CriticalStockAlertList.css'; 
 
 function CriticalStockAlertList() {
     const [alerts, setAlerts] = useState([]);
@@ -10,7 +10,6 @@ function CriticalStockAlertList() {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                // 실제 API 엔드포인트: /api/inventory/status/?alert_type=low_stock
                 const token = localStorage.getItem('accessToken');
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/api/inventory/status/?alert_type=low_stock`, {
                     headers: {

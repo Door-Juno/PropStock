@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './ProductModal.css'; // 기존 모달 CSS 재활용
+import './ProductModal.css'; 
 
 const InventoryAdjustmentModal = ({ product, onClose, onSave }) => {
     const [adjustment, setAdjustment] = useState({

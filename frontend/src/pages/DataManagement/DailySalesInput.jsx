@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import './DataManagementSection.css'; // 공통 스타일
+import './DataManagementSection.css'; 
 
 function DailySalesInput() {
-    const [products, setProducts] = useState([]); // 품목 목록 상태
-    const [salesDate, setSalesDate] = useState(new Date().toISOString().split('T')[0]); // 판매 날짜
-    const [salesQuantities, setSalesQuantities] = useState({}); // 품목별 판매량
-    const [salesEventDays, setSalesEventDays] = useState({}); // 품목별 행사 여부
+    const [products, setProducts] = useState([]); 
+    const [salesDate, setSalesDate] = useState(new Date().toISOString().split('T')[0]); 
+    const [salesQuantities, setSalesQuantities] = useState({});
+    const [salesEventDays, setSalesEventDays] = useState({}); 
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
@@ -20,7 +20,6 @@ function DailySalesInput() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
             const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
             setProducts(sortedData);
             // 초기 판매량 상태 설정
@@ -28,7 +27,7 @@ function DailySalesInput() {
             const initialEventDays = {};
             sortedData.forEach(p => {
                 initialQuantities[p.id] = 0; // 기본 판매량 0
-                initialEventDays[p.id] = false; // 기본 행사 여부 false
+                initialEventDays[p.id] = false; 
             });
             setSalesQuantities(initialQuantities);
             setSalesEventDays(initialEventDays);
@@ -88,12 +87,11 @@ function DailySalesInput() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify(salesRecordsToSave), // 배열 형태로 전송
+                body: JSON.stringify(salesRecordsToSave), 
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                // 백엔드에서 오는 다양한 에러 메시지를 처리
                 const errorMessage = Object.values(errorData).flat().join(' ');
                 throw new Error(errorMessage || `HTTP error! status: ${response.status}`);
             }
@@ -108,7 +106,7 @@ function DailySalesInput() {
             });
             setSalesQuantities(resetQuantities);
             setSalesEventDays(resetEventDays);
-            fetchProducts(); // 재고가 업데이트되었으므로 품목 목록을 다시 불러옵니다.
+            fetchProducts(); 
 
         } catch (err) {
             setError(`판매 기록 저장 실패: ${err.message}`);

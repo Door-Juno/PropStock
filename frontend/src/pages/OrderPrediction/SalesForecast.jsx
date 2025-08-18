@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './SalesForecast.css'; // CSS 파일 임포트
+import './SalesForecast.css'; 
 
 function SalesForecast() {
     const [forecastData, setForecastData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [storeId, setStoreId] = useState(null); // 사용자 store_id
-    const [allProductCodes, setAllProductCodes] = useState([]); // AI 서비스에 보낼 품목 ID 리스트
-    const [productDetailsMap, setProductDetailsMap] = useState({}); // 품목 ID에 대한 상세 정보 맵
-    const [predictDate, setPredictDate] = useState(new Date().toISOString().slice(0, 10)); // 예측 날짜 (기본값: 오늘)
-
+    const [storeId, setStoreId] = useState(null);
+    const [allProductCodes, setAllProductCodes] = useState([]); 
+    const [productDetailsMap, setProductDetailsMap] = useState({}); 
+    const [predictDate, setPredictDate] = useState(new Date().toISOString().slice(0, 10)); 
     useEffect(() => {
         const fetchUserDataAndProducts = async () => {
             const token = localStorage.getItem('accessToken');
@@ -24,7 +23,7 @@ function SalesForecast() {
                 const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me/`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
-                setStoreId(userResponse.data.store.id); // 실제 사용자 store_id를 동적으로 가져옴
+                setStoreId(userResponse.data.store.id); 
 
                 // 2. 모든 품목 코드 및 상세 정보 가져오기
                 const productResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/products/`, {
@@ -70,27 +69,24 @@ function SalesForecast() {
                 store_id: storeId,
                 product_codes: allProductCodes,
                 predict_date: predictDate,
-                is_event_day: 0, // 행사 여부 항상 0으로 고정
+                is_event_day: 0, 
             };
 
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/predictions/sales-forecast/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
-                params: requestBody, // GET 요청 시 body 대신 params 사용
+                params: requestBody, 
             });
 
-            // AI 서비스 응답 형식에 맞게 데이터 처리 및 품목 상세 정보 추가
             const data = response.data.map(p => {
                 return {
-                    product_id: p.product_id, // 응답에서 직접 product_id 사용
-                    item_code: p.item_code,   // 응답에서 직접 item_code 사용
-                    name: p.name,             // 응답에서 직접 name 사용
+                    product_id: p.product_id,
+                    item_code: p.item_code,  
+                    name: p.name,             
                     predicted_quantity: Math.round(p.predicted_quantity),
                 };
             });
-            
-            // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
             const sortedData = data.sort((a, b) => a.item_code.localeCompare(b.item_code, undefined, { numeric: true }));
             setForecastData(sortedData);
 

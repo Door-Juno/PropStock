@@ -10,7 +10,7 @@ DATA_DIR = '/app/ai/data'
 
 
 
-# data 폴더에 있는 모든 가게별 CSV 파일 목록을 가져옵니다.
+
 store_csv_files = glob.glob(os.path.join(DATA_DIR, 'sales_data_store_*.csv'))
 
 if not store_csv_files:
@@ -20,7 +20,6 @@ if not store_csv_files:
 
 print(f"총 {len(store_csv_files)}개의 가게에 대한 학습을 시작합니다.")
 
-# 각 가게별로 모델 학습을 진행합니다.
 for file_path in store_csv_files:
     try:
         # 파일명에서 store_id 추출
@@ -41,17 +40,15 @@ for file_path in store_csv_files:
         holidays_df['holiday'] = 'event_day'
         holidays_df = holidays_df.drop_duplicates()
 
-        # 품목별 학습 및 MLflow에 기록
         unique_products = df['item_code'].unique()
         
-        # 가게의 모든 품목 모델을 저장할 딕셔너리
+        # 가게의 모든 품목 모델을 저장
         store_models = {}
         
         print(f"총 {len(unique_products)}개의 품목에 대해 학습 시작...")
         for product_code in unique_products:
             product_df = df[df['item_code'] == product_code].copy()
 
-            # 교차 검증을 위해 최소 10개 이상의 데이터가 필요
             if len(product_df) < 10:
                 print(f"Warning: '{product_code}' 품목은 데이터가 부족하여 (10개 미만) 학습을 건너뜁니다.")
                 continue
@@ -76,9 +73,7 @@ for file_path in store_csv_files:
             # 학습된 모델을 딕셔너리에 추가
             store_models[product_code] = m
 
-            # 교차 검증 및 성능 평가
             try:
-                # 데이터 양에 따라 initial, period, horizon 값 조정이 필요할 수 있습니다.
                 df_cv = cross_validation(m, initial='30 days', period='15 days', horizon='7 days', parallel="processes")
                 df_p = performance_metrics(df_cv, rolling_window=1)
                 
@@ -87,7 +82,6 @@ for file_path in store_csv_files:
             except Exception as cv_e:
                 print(f"Could not perform cross-validation for product {product_code}: {cv_e}")
 
-        # --- 모든 품목 학습 완료 후, 가게 모델 전체를 .pkl 파일로 저장 ---
         if store_models:
             output_dir = "/app/models"
             os.makedirs(output_dir, exist_ok=True)

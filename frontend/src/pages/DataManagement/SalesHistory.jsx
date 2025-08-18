@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './DataManagementSection.css'; // 공통 스타일
+import './DataManagementSection.css';
 
 function SalesHistory() {
     const [salesRecords, setSalesRecords] = useState([]);
@@ -9,14 +9,11 @@ function SalesHistory() {
     const [searchFilters, setSearchFilters] = useState({
         startDate: '',
         endDate: '',
-        // itemName: '', // 백엔드에서 지원하지 않는다면 주석 처리
     });
-    const [editingRecordId, setEditingRecordId] = useState(null); // 수정 중인 레코드 ID
-    const [editFormData, setEditFormData] = useState({}); // 수정 폼 데이터
+    const [editingRecordId, setEditingRecordId] = useState(null); 
+    const [editFormData, setEditFormData] = useState({});
 
     useEffect(() => {
-        // 초기 로드 시 데이터를 불러오지 않음. 검색 버튼 클릭 시에만 불러옴.
-        // fetchSalesRecords(); 
     }, []);
 
     const fetchSalesRecords = async (filters = searchFilters) => {
@@ -27,7 +24,6 @@ function SalesHistory() {
             const queryParams = new URLSearchParams();
             if (filters.startDate) queryParams.append('start_date', filters.startDate);
             if (filters.endDate) queryParams.append('end_date', filters.endDate);
-            // if (filters.itemName) queryParams.append('item_name', filters.itemName);
 
             const token = localStorage.getItem('accessToken');
             const response = await fetch(`${process.env.REACT_APP_API_URL}/api/sales/records/?${queryParams.toString()}`, {
@@ -72,7 +68,6 @@ function SalesHistory() {
             selling_price: record.selling_price,
             cost_price: record.cost_price,
             is_event_day: record.is_event_day,
-            // item_code, item_name은 수정하지 않으므로 포함하지 않음
         });
     };
 
@@ -167,10 +162,10 @@ function SalesHistory() {
                         type="date"
                         id="searchDate"
                         name="searchDate"
-                        value={searchFilters.startDate} // startDate를 단일 날짜 선택으로 사용
+                        value={searchFilters.startDate} 
                         onChange={(e) => setSearchFilters({
                             startDate: e.target.value,
-                            endDate: e.target.value, // 선택된 날짜를 endDate에도 동일하게 설정
+                            endDate: e.target.value, 
                         })}
                     />
                 </div>

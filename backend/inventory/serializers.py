@@ -40,7 +40,7 @@ class ProductStatusSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         if obj.current_stock < obj.min_stock:
             return '부족'
-        elif obj.current_stock > obj.safety_stock: # 안전 재고보다 많으면 과잉으로 간주
+        elif obj.current_stock > obj.safety_stock: # 안전 재고보다 많으면 과잉
             return '과잉'
         else:
             return '정상'

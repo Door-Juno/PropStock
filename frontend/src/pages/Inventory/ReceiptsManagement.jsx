@@ -17,7 +17,6 @@ const ReceiptsManagement = () => {
         const token = localStorage.getItem('accessToken');
         const headers = { 'Authorization': `Bearer ${token}` };
 
-        // Fetch products for dropdown
         axios.get(`${process.env.REACT_APP_API_URL}/api/products/`, { headers })
             .then(response => {
                 // 품목 코드(item_code)를 기준으로 자연어 정렬 (숫자 순서대로)
@@ -28,7 +27,6 @@ const ReceiptsManagement = () => {
                 console.error('Error fetching products:', error);
             });
 
-        // Fetch receipt history
         axios.get(`${process.env.REACT_APP_API_URL}/api/inventory/transactions/?type=in`, { headers })
             .then(response => {
                 setReceipts(response.data);
